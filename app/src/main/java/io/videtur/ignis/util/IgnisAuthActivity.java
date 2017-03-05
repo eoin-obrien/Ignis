@@ -44,10 +44,11 @@ public class IgnisAuthActivity extends AppCompatActivity
     }
 
     @Override
-    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+    public final void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
             Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+            onUserAuthenticated(user);
             // TODO Fetch the user from the database
             // TODO If the user is null, initialize the user in the database
         } else {
@@ -56,6 +57,10 @@ public class IgnisAuthActivity extends AppCompatActivity
             startActivity(new Intent(this, SignInActivity.class));
             finish();
         }
+    }
+
+    public void onUserAuthenticated(FirebaseUser user) {
+
     }
 
     public void signOut() {
