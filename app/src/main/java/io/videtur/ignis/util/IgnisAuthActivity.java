@@ -133,6 +133,10 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
     }
 
     public void signOut() {
+        // Remove state listeners
+        mAuth.removeAuthStateListener(this);
+        removeUserStateListener();
+
         // Mark user as no longer present in this activity
         removeUserPresenceListener();
         dropCurrentConnection();
@@ -143,6 +147,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         showToast(R.string.sign_out_successful);
+                        startActivity(new Intent(IgnisAuthActivity.this, SignInActivity.class));
                         finish();
                     }
                 });
@@ -155,7 +160,9 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
     private void dropCurrentConnection() {
         if (mCurrentConnectionRef != null) {
             mCurrentConnectionRef.removeValue();
+            mCurrentConnectionRef = null;
             mCurrentLastOnlineRef.setValue(ServerValue.TIMESTAMP);
+            mCurrentLastOnlineRef = null;
         }
     }
 
@@ -163,6 +170,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         if (mUserListener != null) {
             mUserListenerRef.removeEventListener(mUserListener);
             mUserListener = null;
+            mUserListenerRef = null;
         }
     }
 
