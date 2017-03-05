@@ -26,7 +26,7 @@ import io.videtur.ignis.model.User;
 
 import static io.videtur.ignis.util.Constants.USERS_REF;
 
-public class IgnisAuthActivity extends AppCompatActivity
+public abstract class IgnisAuthActivity extends AppCompatActivity
         implements AuthStateListener {
 
     private static final String TAG = "IgnisAuthActivity";
