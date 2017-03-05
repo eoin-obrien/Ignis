@@ -3,6 +3,7 @@ package io.videtur.ignis;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -28,6 +29,7 @@ public class ContactsActivity extends IgnisAuthActivity {
 
     private DatabaseReference mContactsRef;
     private DatabaseReference mUsersRef;
+    private FirebaseIndexListAdapter<User> mContactsAdapter;
 
     private EditText mSearchEditText;
     private ListView mContactsList;
@@ -65,7 +67,7 @@ public class ContactsActivity extends IgnisAuthActivity {
     public void onUserDataChange(String key, User user) {
         super.onUserDataChange(key, user);
 
-        mContactsList.setAdapter(new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, mContactsRef.child(key), mUsersRef) {
+        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, mContactsRef.child(key), mUsersRef) {
             @Override
             protected void populateView(View v, User model, int position) {
                 ImageView contactPhoto = (ImageView) v.findViewById(R.id.contact_profile_image);
@@ -78,6 +80,14 @@ public class ContactsActivity extends IgnisAuthActivity {
                 } else {
                     contactStatus.setText(formatLastOnlineTime(model.getLastOnline()));
                 }
+            }
+        };
+        mContactsList.setAdapter(mContactsAdapter);
+        mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String contactKey = mContactsAdapter.getRef(position).getKey();
+                // TODO start ContactInfoActivity or ChatActivity for selected contact
             }
         });
     }
