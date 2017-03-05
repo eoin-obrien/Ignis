@@ -1,36 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <group android:checkableBehavior="single">
-    <item
-      android:id="@+id/nav_camera"
-      android:icon="@drawable/ic_menu_camera"
-      android:title="Import" />
-    <item
-      android:id="@+id/nav_gallery"
-      android:icon="@drawable/ic_menu_gallery"
-      android:title="Gallery" />
-    <item
-      android:id="@+id/nav_slideshow"
-      android:icon="@drawable/ic_menu_slideshow"
-      android:title="Slideshow" />
-    <item
-      android:id="@+id/nav_manage"
-      android:icon="@drawable/ic_menu_manage"
-      android:title="Tools" />
-  </group>
+    <group
+        android:id="@+id/nav_group_messaging"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_new_message"
+            android:icon="@drawable/ic_message"
+            android:title="@string/nav_new_message" />
+        <item
+            android:id="@+id/nav_new_group"
+            android:icon="@drawable/ic_group"
+            android:title="@string/nav_new_group" />
+    </group>
 
-  <item android:title="Communicate">
-    <menu>
-      <item
-        android:id="@+id/nav_share"
-        android:icon="@drawable/ic_menu_share"
-        android:title="Share" />
-      <item
-        android:id="@+id/nav_send"
-        android:icon="@drawable/ic_menu_send"
-        android:title="Send" />
-    </menu>
-  </item>
+    <group
+        android:id="@+id/nav_group_user"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_contacts"
+            android:icon="@drawable/ic_contacts"
+            android:title="@string/nav_contacts" />
+        <item
+            android:id="@+id/nav_invite_friends"
+            android:icon="@drawable/ic_share"
+            android:title="@string/nav_invite_friends" />
+        <item
+            android:id="@+id/nav_log_out"
+            android:icon="@drawable/ic_exit"
+            android:title="@string/nav_log_out" />
+    </group>
 
 </menu>
