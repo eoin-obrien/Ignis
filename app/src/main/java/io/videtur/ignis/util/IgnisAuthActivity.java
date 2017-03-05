@@ -14,9 +14,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import io.videtur.ignis.R;
 import io.videtur.ignis.SignInActivity;
+import io.videtur.ignis.model.User;
+
+import static io.videtur.ignis.util.Constants.USERS_REF;
 
 public class IgnisAuthActivity extends AppCompatActivity
         implements AuthStateListener {
@@ -24,11 +32,17 @@ public class IgnisAuthActivity extends AppCompatActivity
     private static final String TAG = "IgnisAuthActivity";
 
     private FirebaseAuth mAuth;
+    private FirebaseDatabase mDatabase;
+    private DatabaseReference mUsersRef;
+    private DatabaseReference mUserListenerRef;
+    private ValueEventListener mUserListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
+        mUsersRef = mDatabase.getReference(USERS_REF);
     }
 
     @Override
@@ -45,12 +59,43 @@ public class IgnisAuthActivity extends AppCompatActivity
 
     @Override
     public final void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user != null) {
-            Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-            onUserAuthenticated(user);
-            // TODO Fetch the user from the database
-            // TODO If the user is null, initialize the user in the database
+        final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
+
+            // Setup key and database reference for the user
+            String userKey = Util.getKeyFromEmail(firebaseUser.getEmail());
+            final DatabaseReference userRef = mUsersRef.child(userKey);
+
+            // Remove old user ValueEventListener
+            if (mUserListener != null) {
+                mUserListenerRef.removeEventListener(mUserListener);
+            }
+
+            // Fetch the user from the database
+            mUserListenerRef = userRef;
+            mUserListener = userRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        onUserDataChange(dataSnapshot.getValue(User.class));
+                    } else {
+                        // Initialize the user in the database
+                        final User user = new User(firebaseUser);
+                        userRef.setValue(user, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                onUserDataChange(user);
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e(TAG, databaseError.getMessage());
+                }
+            });
         } else {
             Log.d(TAG, "onAuthStateChanged:signed_out");
             // Not authenticated, start the SignInActivity
@@ -59,7 +104,7 @@ public class IgnisAuthActivity extends AppCompatActivity
         }
     }
 
-    public void onUserAuthenticated(FirebaseUser user) {
+    public void onUserDataChange(User user) {
 
     }
 

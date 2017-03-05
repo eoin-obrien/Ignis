@@ -16,8 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseUser;
 
+import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
 public class MainActivity extends IgnisAuthActivity
@@ -61,11 +61,12 @@ public class MainActivity extends IgnisAuthActivity
     }
 
     @Override
-    public void onUserAuthenticated(FirebaseUser user) {
-        Log.d(TAG, "user.getDisplayName:" + user.getDisplayName());
+    public void onUserDataChange(User user) {
+        Log.d(TAG, "user.getName:" + user.getName());
         Log.d(TAG, "user.getEmail:" + user.getEmail());
+        Log.d(TAG, "user.getPhotoUrl:" + user.getPhotoUrl());
         Glide.with(this).load(user.getPhotoUrl()).fitCenter().into(mNavProfileImageView);
-        mNavUserNameTextView.setText(user.getDisplayName());
+        mNavUserNameTextView.setText(user.getName());
         mNavUserEmailTextView.setText(user.getEmail());
     }
 
