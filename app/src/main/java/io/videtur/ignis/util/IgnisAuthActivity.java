@@ -46,6 +46,10 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
     private ValueEventListener mConnectedListener;
     private String mPresentUserKey;
 
+    public FirebaseDatabase getDatabase() {
+        return mDatabase;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,14 +106,14 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
                             addUserPresenceListener(userKey);
                         }
                         // Fire event
-                        onUserDataChange(dataSnapshot.getValue(User.class));
+                        onUserDataChange(userKey, dataSnapshot.getValue(User.class));
                     } else {
                         // Initialize the user in the database
                         final User user = new User(firebaseUser);
                         userRef.setValue(user, new DatabaseReference.CompletionListener() {
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                onUserDataChange(user);
+                                onUserDataChange(userKey, user);
                             }
                         });
                     }
@@ -128,7 +132,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         }
     }
 
-    public void onUserDataChange(User user) {
+    public void onUserDataChange(String key, User user) {
         Log.d(TAG, "onUserDataChange");
     }
 
@@ -162,7 +166,6 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
             mCurrentConnectionRef.removeValue();
             mCurrentConnectionRef = null;
             mCurrentLastOnlineRef.setValue(ServerValue.TIMESTAMP);
-            mCurrentLastOnlineRef = null;
         }
     }
 

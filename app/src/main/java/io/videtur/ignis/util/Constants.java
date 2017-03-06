@@ -4,6 +4,7 @@ public final class Constants {
 
     // Firebase database paths
     public static final String CONNECTED_REF = ".info/connected";
+    public static final String CONTACTS_REF = "contacts";
     public static final String USERS_REF = "users";
 
     // Firebase database children

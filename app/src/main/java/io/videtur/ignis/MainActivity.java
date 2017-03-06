@@ -80,8 +80,8 @@ public class MainActivity extends IgnisAuthActivity
     }
 
     @Override
-    public void onUserDataChange(User user) {
-        super.onUserDataChange(user);
+    public void onUserDataChange(String key, User user) {
+        super.onUserDataChange(key, user);
         Log.d(TAG, "user.getName:" + user.getName());
         Log.d(TAG, "user.getEmail:" + user.getEmail());
         Log.d(TAG, "user.getPhotoUrl:" + user.getPhotoUrl());
@@ -111,7 +111,7 @@ public class MainActivity extends IgnisAuthActivity
         } else if (id == R.id.nav_new_group) {
             // TODO start NewGroupActivity
         } else if (id == R.id.nav_contacts) {
-            // TODO start ContactsActivity
+            startActivity(new Intent(this, ContactsActivity.class));
         } else if (id == R.id.nav_invite_friends) {
             // TODO start Firebase invites intent
         } else if (id == R.id.nav_log_out) {
