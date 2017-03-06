@@ -2,6 +2,8 @@ package io.videtur.ignis;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseIndexListAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,8 +31,10 @@ public class ContactsActivity extends IgnisAuthActivity {
     private static final String TAG = "ContactsActivity";
 
     private DatabaseReference mContactsRef;
+    private DatabaseReference mContactsKeyRef;
     private DatabaseReference mUsersRef;
     private FirebaseIndexListAdapter<User> mContactsAdapter;
+    private TextWatcher mSearchTextWatcher;
 
     private EditText mSearchEditText;
     private ListView mContactsList;
@@ -64,10 +69,48 @@ public class ContactsActivity extends IgnisAuthActivity {
     }
 
     @Override
-    public void onUserDataChange(String key, User user) {
+    public void onUserDataChange(final String key, User user) {
         super.onUserDataChange(key, user);
 
-        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, mContactsRef.child(key), mUsersRef) {
+        mContactsKeyRef = mContactsRef.child(key);
+        setContactsAdapter();
+        mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String contactKey = mContactsAdapter.getRef(position).getKey();
+                // TODO start ContactInfoActivity or ChatActivity for selected contact
+            }
+        });
+
+        if (mSearchTextWatcher != null) {
+            mSearchEditText.removeTextChangedListener(mSearchTextWatcher);
+        }
+        mSearchTextWatcher = new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // TODO decide on minimum search term length
+                String searchTerm = mSearchEditText.getText().toString().toLowerCase();
+                setContactsAdapter(searchTerm);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        mSearchEditText.addTextChangedListener(mSearchTextWatcher);
+    }
+
+    private void setContactsAdapter() {
+        setContactsAdapter("");
+    }
+
+    private void setContactsAdapter(String searchTerm) {
+        Query keyRef = mContactsKeyRef.orderByValue().startAt(searchTerm).endAt(searchTerm + "~");
+        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, keyRef, mUsersRef) {
             @Override
             protected void populateView(View v, User model, int position) {
                 ImageView contactPhoto = (ImageView) v.findViewById(R.id.contact_profile_image);
@@ -81,15 +124,9 @@ public class ContactsActivity extends IgnisAuthActivity {
                     contactStatus.setText(formatLastOnlineTime(model.getLastOnline()));
                 }
             }
+
         };
         mContactsList.setAdapter(mContactsAdapter);
-        mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String contactKey = mContactsAdapter.getRef(position).getKey();
-                // TODO start ContactInfoActivity or ChatActivity for selected contact
-            }
-        });
     }
 
     private String formatLastOnlineTime(long lastOnlineMilliseconds) {
