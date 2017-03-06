@@ -49,6 +49,8 @@ public class ContactsActivity extends IgnisAuthActivity {
         mSearchEditText = (EditText) findViewById(R.id.contacts_search_edit_text);
         mContactsList = (ListView) findViewById(R.id.contacts_list);
 
+        mContactsList.setEmptyView(findViewById(R.id.empty_search));
+
         // Setup database references
         mContactsRef = getDatabase().getReference(CONTACTS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);

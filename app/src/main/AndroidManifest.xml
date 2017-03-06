@@ -27,7 +27,8 @@
             android:name=".ContactsActivity"
             android:label="@string/title_activity_contacts"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.videtur.ignis.MainActivity" />
