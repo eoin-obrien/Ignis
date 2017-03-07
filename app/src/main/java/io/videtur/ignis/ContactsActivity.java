@@ -1,5 +1,6 @@
 package io.videtur.ignis;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -101,7 +102,9 @@ public class ContactsActivity extends IgnisAuthActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String contactKey = mContactsAdapter.getRef(position).getKey();
-                // TODO start ContactInfoActivity or ChatActivity for selected contact
+                Intent intent = new Intent(ContactsActivity.this, ContactInfoActivity.class);
+                intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, contactKey);
+                startActivity(intent);
             }
         });
 
