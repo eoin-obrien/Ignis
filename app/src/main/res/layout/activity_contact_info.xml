@@ -29,8 +29,42 @@
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+            <com.sloydev.collapsingavatartoolbar.CollapsingAvatarToolbar android:id="@+id/stuff_container"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize">
+
+                <ImageView android:id="@id/cat_avatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_googleg_color_24dp" />
+
+                <LinearLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="16dp"
+                    android:orientation="vertical">
+
+                    <TextView android:id="@id/cat_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Title"
+                        android:textColor="@android:color/white"
+                        android:textSize="18dp" />
+
+                    <TextView android:id="@+id/subtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Subtitle"
+                        android:textColor="#80ffffff"
+                        android:textSize="15dp" />
+                </LinearLayout>
+            </com.sloydev.collapsingavatartoolbar.CollapsingAvatarToolbar>
+
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
+
 
     <include layout="@layout/content_contact_info" />
 
