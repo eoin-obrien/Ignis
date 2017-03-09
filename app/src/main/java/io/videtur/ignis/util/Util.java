@@ -1,5 +1,8 @@
 package io.videtur.ignis.util;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Base64;
 
 import java.text.SimpleDateFormat;

@@ -1,5 +1,7 @@
 package io.videtur.ignis;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -33,6 +35,7 @@ public class ContactInfoActivity extends IgnisAuthActivity {
     private DatabaseReference mContactRef;
     private ContactListener mContactListener;
     private String mContactKey;
+    private UserIconFactory mUserIconFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,8 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         setContentView(R.layout.activity_contact_info);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mUserIconFactory = new UserIconFactory(this);
 
         mContactAvatar = (ImageView) findViewById(R.id.cat_avatar);
         mContactName = (TextView) findViewById(R.id.cat_title);
@@ -81,7 +86,12 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (dataSnapshot.exists()) {
                 User contact = dataSnapshot.getValue(User.class);
-                Glide.with(ContactInfoActivity.this).load(contact.getPhotoUrl()).into(mContactAvatar);
+                Bitmap avatar = mUserIconFactory.getDefaultAvatar(contact.getName(),
+                        contact.getEmail(), mContactAvatar.getWidth(), mContactAvatar.getHeight());
+                mContactAvatar.setImageBitmap(avatar);
+                Glide.with(ContactInfoActivity.this)
+                        .load(contact.getPhotoUrl())
+                        .into(mContactAvatar);
                 mContactName.setText(contact.getName());
                 mContactStatus.setText(formatLastOnlineTime(contact.getLastOnline()));
             }
