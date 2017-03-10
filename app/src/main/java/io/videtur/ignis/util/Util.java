@@ -1,9 +1,12 @@
 package io.videtur.ignis.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Base64;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -44,6 +47,11 @@ public final class Util {
             formattedLastOnlineTime = formatter.format(lastOnline.getTime());
         }
         return formattedLastOnlineTime;
+    }
+
+    public static float dpToPx(Context context, float dp) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, displayMetrics);
     }
 
 }

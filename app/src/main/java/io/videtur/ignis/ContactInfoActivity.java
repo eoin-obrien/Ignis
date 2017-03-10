@@ -29,6 +29,7 @@ import io.videtur.ignis.util.IgnisAuthActivity;
 
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.util.Util.dpToPx;
 import static io.videtur.ignis.util.Util.formatLastOnlineTime;
 
 public class ContactInfoActivity extends IgnisAuthActivity {
@@ -172,11 +173,12 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (dataSnapshot.exists()) {
                 final User contact = dataSnapshot.getValue(User.class);
+                int iconSize = (int) dpToPx(ContactInfoActivity.this, 40);
 
                 mName = contact.getName();
                 mEmail = contact.getEmail();
                 Drawable userIconPlaceholder = mUserIconFactory.getDefaultAvatar(contact.getName(),
-                        contact.getEmail(), 40, 40);
+                        contact.getEmail(), iconSize, iconSize);
                 Glide.with(ContactInfoActivity.this)
                         .load(contact.getPhotoUrl())
                         .placeholder(userIconPlaceholder)
