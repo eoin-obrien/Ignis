@@ -1,5 +1,6 @@
 package io.videtur.ignis;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -28,6 +29,7 @@ import io.videtur.ignis.util.IgnisAuthActivity;
 
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.util.Util.formatLastOnlineTime;
 
 public class ContactsActivity extends IgnisAuthActivity {
 
@@ -101,7 +103,9 @@ public class ContactsActivity extends IgnisAuthActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String contactKey = mContactsAdapter.getRef(position).getKey();
-                // TODO start ContactInfoActivity or ChatActivity for selected contact
+                Intent intent = new Intent(ContactsActivity.this, ContactInfoActivity.class);
+                intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, contactKey);
+                startActivity(intent);
             }
         });
 
@@ -150,30 +154,5 @@ public class ContactsActivity extends IgnisAuthActivity {
 
         };
         mContactsList.setAdapter(mContactsAdapter);
-    }
-
-    private String formatLastOnlineTime(long lastOnlineMilliseconds) {
-        String formattedLastOnlineTime;
-        Calendar now = Calendar.getInstance();
-        Calendar lastOnline = Calendar.getInstance();
-        lastOnline.setTimeInMillis(lastOnlineMilliseconds);
-
-        long difference = now.getTimeInMillis() - lastOnline.getTimeInMillis();
-        long daysDifference = TimeUnit.MILLISECONDS.toDays(difference);
-        boolean sameYear = now.get(Calendar.YEAR) == lastOnline.get(Calendar.YEAR);
-        boolean sameDay = sameYear && now.get(Calendar.DAY_OF_YEAR) == lastOnline.get(Calendar.DAY_OF_YEAR);
-        boolean sameWeek = daysDifference < 7;
-
-        if (sameDay) {
-            SimpleDateFormat formatter = new SimpleDateFormat("'last seen at' HH:mm");
-            formattedLastOnlineTime = formatter.format(lastOnline.getTime());
-        } else if (sameWeek) {
-            SimpleDateFormat formatter = new SimpleDateFormat("'last seen' EEE 'at' HH:mm");
-            formattedLastOnlineTime = formatter.format(lastOnline.getTime());
-        } else {
-            SimpleDateFormat formatter = new SimpleDateFormat("'last seen' dd.MM.yy 'at' HH:mm");
-            formattedLastOnlineTime = formatter.format(lastOnline.getTime());
-        }
-        return formattedLastOnlineTime;
     }
 }
