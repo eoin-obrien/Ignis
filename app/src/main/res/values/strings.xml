@@ -34,4 +34,5 @@
     <string name="contact_info_delete_contact">Delete contact</string>
     <string name="contact_deleted">Contact deleted</string>
     <string name="contact_added">Contact added</string>
+    <string name="online">online</string>
 </resources>

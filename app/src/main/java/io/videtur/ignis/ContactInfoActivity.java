@@ -185,8 +185,12 @@ public class ContactInfoActivity extends IgnisAuthActivity {
                         .crossFade()
                         .into(mContactAvatar);
                 mContactName.setText(mName);
-                mContactStatus.setText(formatLastOnlineTime(contact.getLastOnline()));
                 mContactEmail.setText(mEmail);
+                if (contact.getConnections() != null && contact.getConnections().size() > 0) {
+                    mContactStatus.setText(R.string.online);
+                } else {
+                    mContactStatus.setText(formatLastOnlineTime(contact.getLastOnline()));
+                }
             }
         }
 
