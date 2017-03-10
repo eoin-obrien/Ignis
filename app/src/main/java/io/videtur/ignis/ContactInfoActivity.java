@@ -85,7 +85,7 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         mAddContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mUserContactsRef.setValue(mName, new DatabaseReference.CompletionListener() {
+                mUserContactsRef.setValue(mName.toLowerCase(), new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError != null) {
