@@ -86,7 +86,7 @@ public class ContactsActivity extends IgnisAuthActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_new_contact:
-                // TODO start NewContactActivity
+                startActivity(new Intent(this, AddContactActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
