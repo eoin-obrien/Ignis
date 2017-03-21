@@ -48,7 +48,9 @@ public class MainActivity extends IgnisAuthActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO start NewMessageActivity
+                // start NewMessageActivity
+                Intent intent = new Intent(MainActivity.this, NewMessageActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -107,7 +109,9 @@ public class MainActivity extends IgnisAuthActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_new_message) {
-            // TODO start NewMessageActivity
+            // start NewMessageActivity
+            Intent intent = new Intent(this, NewMessageActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_new_group) {
             // TODO start NewGroupActivity
         } else if (id == R.id.nav_contacts) {
