@@ -77,10 +77,12 @@ public class NewMessageActivity extends IgnisAuthActivity {
         mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // launch a ChatActivity between the user and the selected contact
                 String contactKey = mContactsAdapter.getRef(position).getKey();
-                Intent intent = new Intent(NewMessageActivity.this, ContactInfoActivity.class);
-                intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, contactKey);
+                Intent intent = new Intent(NewMessageActivity.this, ChatActivity.class);
+                intent.putExtra(ChatActivity.ARG_CONTACT_KEY, contactKey);
                 startActivity(intent);
+                finish();
             }
         });
 
