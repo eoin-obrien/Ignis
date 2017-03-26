@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
+import static io.videtur.ignis.util.Constants.CHAT_KEY_DELIMITER;
+
 public final class Util {
 
     public static String getKeyFromEmail(String email) {
@@ -22,6 +24,16 @@ public final class Util {
     public static String getEmailFromKey(String key) {
         byte[] bytes = Base64.decode(key, Base64.URL_SAFE | Base64.NO_WRAP);
         return new String(bytes);
+    }
+
+    public static String generateChatKey(String userKey1, String userKey2) {
+        String key;
+        if (userKey1.compareTo(userKey2) < 0) {
+            key = userKey1 + CHAT_KEY_DELIMITER + userKey2;
+        } else {
+            key = userKey2 + CHAT_KEY_DELIMITER + userKey1;
+        }
+        return key;
     }
 
     public static String formatLastOnlineTime(long lastOnlineMilliseconds) {
