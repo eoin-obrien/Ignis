@@ -93,20 +93,16 @@ public class NewMessageActivity extends IgnisAuthActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // TODO generate chat if it doesn't exist
                 final String contactKey = mContactsAdapter.getRef(position).getKey();
-                final User contact = mContactsAdapter.getItem(position);
                 final String chatKey = generateChatKey(key, contactKey);
                 mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                            Map<String, Object> chatNames = new HashMap<>();
-                            chatNames.put(key, contact.getName());
-                            chatNames.put(contactKey, user.getName());
-                            Map<String, Object> chatProfilePhotos = new HashMap<>();
-                            chatProfilePhotos.put(key, contact.getPhotoUrl());
-                            chatProfilePhotos.put(contactKey, user.getPhotoUrl());
+                            Map<String, Object> chatUsers = new HashMap<>();
+                            chatUsers.put(key, contactKey);
+                            chatUsers.put(contactKey, key);
                             mChatsRef.child(chatKey)
-                                    .setValue(new Chat(chatNames, chatProfilePhotos))
+                                    .setValue(new Chat(chatUsers))
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {

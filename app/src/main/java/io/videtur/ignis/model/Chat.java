@@ -6,8 +6,7 @@ import java.util.Map;
 
 public class Chat {
 
-    private Map<String, Object> mChatNames;
-    private Map<String, Object> mChatProfilePhotos;
+    private Map<String, Object> mChatUsers;
     private String mChatProfilePhoto;
     private String mChatName;
     private String mLastMessageText;
@@ -18,9 +17,8 @@ public class Chat {
         // empty constructor for Firebase
     }
 
-    public Chat(Map<String, Object> mChatNames, Map<String, Object> mChatProfilePhotos) {
-        this.mChatNames = mChatNames;
-        this.mChatProfilePhotos = mChatProfilePhotos;
+    public Chat(Map<String, Object> chatUsers) {
+        this.mChatUsers = chatUsers;
     }
 
     public Chat(String mChatProfilePhoto, String mChatName) {
@@ -29,37 +27,16 @@ public class Chat {
     }
 
     @Exclude
-    public String getChatName(String userKey) {
-        if (mChatNames != null) {
-            return (String) mChatNames.get(userKey);
-        } else {
-            return mChatName;
-        }
+    public String getChatUser(String userKey) {
+        return (String) mChatUsers.get(userKey);
     }
 
-    @Exclude
-    public String getChatProfilePhoto(String userKey) {
-        if (mChatProfilePhotos != null) {
-            return (String) mChatProfilePhotos.get(userKey);
-        } else {
-            return mChatProfilePhoto;
-        }
+    public Map<String, Object> getChatUsers() {
+        return mChatUsers;
     }
 
-    public Map<String, Object> getChatNames() {
-        return mChatNames;
-    }
-
-    public void setChatNames(Map<String, Object> chatNames) {
-        this.mChatNames = chatNames;
-    }
-
-    public Map<String, Object> getChatProfilePhotos() {
-        return mChatProfilePhotos;
-    }
-
-    public void setChatProfilePhotos(Map<String, Object> chatProfilePhotos) {
-        this.mChatProfilePhotos = chatProfilePhotos;
+    public void setChatUsers(Map<String, Object> chatUsers) {
+        this.mChatUsers = chatUsers;
     }
 
     public String getChatProfilePhoto() {

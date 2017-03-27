@@ -14,14 +14,21 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
+import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
+import io.videtur.ignis.util.Util;
 
 import static io.videtur.ignis.util.Constants.CHAT_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
+import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.util.Util.formatLastOnlineTime;
 
 public class ChatActivity extends IgnisAuthActivity {
 
@@ -41,8 +48,11 @@ public class ChatActivity extends IgnisAuthActivity {
     private RecyclerView mChatRecycler;
     private FirebaseRecyclerAdapter<Message, MessageHolder> mChatAdapter;
     private LinearLayoutManager mLayoutManager;
-    private EditText messageEditText;
-    private Button sendButton;
+    private EditText mMessageEditText;
+    private Button mSendButton;
+    private ImageView mToolbarImage;
+    private TextView mToolbarPrimaryText;
+    private TextView mToolbarSecondaryText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,27 +68,30 @@ public class ChatActivity extends IgnisAuthActivity {
         mMessagesRef = getDatabase().getReference(MESSAGES_REF).child(mChatKey);
 
         // get View references
+        mToolbarImage = (ImageView) findViewById(R.id.toolbar_image);
+        mToolbarPrimaryText = (TextView) findViewById(R.id.toolbar_primary_text);
+        mToolbarSecondaryText = (TextView) findViewById(R.id.toolbar_secondary_text);
         mChatRecycler = (RecyclerView) findViewById(R.id.chat_recycler);
-        messageEditText = (EditText) findViewById(R.id.message_edit_text);
-        sendButton = (Button) findViewById(R.id.send_button);
+        mMessageEditText = (EditText) findViewById(R.id.message_edit_text);
+        mSendButton = (Button) findViewById(R.id.send_button);
 
         // EditText and Button should start off disabled
-        messageEditText.setEnabled(false);
-        sendButton.setEnabled(false);
+        mMessageEditText.setEnabled(false);
+        mSendButton.setEnabled(false);
 
-        // set up listener on sendButton to send message
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        // set up listener on mSendButton to send message
+        mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String messageText = messageEditText.getText().toString();
+                String messageText = mMessageEditText.getText().toString();
                 Message message = new Message(messageText, mUserKey, mUserName, mUserProfilePhotoUrl);
                 mMessagesRef.push().setValue(message);
-                messageEditText.setText("");
+                mMessageEditText.setText("");
             }
         });
 
         // set up listener on EditText to enable/disable the send Button
-        messageEditText.addTextChangedListener(new TextWatcher() {
+        mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -91,13 +104,66 @@ public class ChatActivity extends IgnisAuthActivity {
             public void afterTextChanged(Editable s) {
                 // Send button should be enabled if there is a message to be sent
                 if (s.toString().trim().isEmpty()) {
-                    sendButton.setEnabled(false);
+                    mSendButton.setEnabled(false);
                 } else {
-                    sendButton.setEnabled(true);
+                    mSendButton.setEnabled(true);
                 }
             }
         });
 
+        setUpChatRecycler();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
+    }
+
+    @Override
+    public void onUserDataChange(String key, User user) {
+        super.onUserDataChange(key, user);
+
+        mUserKey = key;
+        mUserName = user.getName();
+        mUserProfilePhotoUrl = user.getPhotoUrl();
+
+        setUpChatToolbar();
+
+        // messages can be sent once the user is authenticated
+        mMessageEditText.setEnabled(true);
+    }
+
+    private void setUpChatToolbar() {
+        // TODO get user ID from Chat model and fill the toolbar with those values
+        mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Chat chat = dataSnapshot.getValue(Chat.class);
+                getDatabase().getReference(USERS_REF).child(chat.getChatUser(mUserKey))
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                User contact = dataSnapshot.getValue(User.class);
+                                mToolbarPrimaryText.setText(contact.getName());
+                                mToolbarSecondaryText.setText(formatLastOnlineTime(contact.getLastOnline()));
+                                Glide.with(ChatActivity.this)
+                                        .load(contact.getPhotoUrl())
+                                        .into(mToolbarImage);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setUpChatRecycler() {
         mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setStackFromEnd(true);
 
@@ -129,20 +195,6 @@ public class ChatActivity extends IgnisAuthActivity {
 
         mChatRecycler.setLayoutManager(mLayoutManager);
         mChatRecycler.setAdapter(mChatAdapter);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
-    @Override
-    public void onUserDataChange(String key, User user) {
-        super.onUserDataChange(key, user);
-
-        mUserKey = key;
-        mUserName = user.getName();
-        mUserProfilePhotoUrl = user.getPhotoUrl();
-
-        // messages can be sent once the user is authenticated
-        messageEditText.setEnabled(true);
     }
 
     private static class MessageHolder extends RecyclerView.ViewHolder {
