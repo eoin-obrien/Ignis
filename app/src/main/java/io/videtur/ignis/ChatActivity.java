@@ -1,5 +1,6 @@
 package io.videtur.ignis;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -50,6 +51,7 @@ public class ChatActivity extends IgnisAuthActivity {
     private LinearLayoutManager mLayoutManager;
     private EditText mMessageEditText;
     private Button mSendButton;
+    private View mToolbarLayout;
     private ImageView mToolbarImage;
     private TextView mToolbarPrimaryText;
     private TextView mToolbarSecondaryText;
@@ -68,6 +70,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mMessagesRef = getDatabase().getReference(MESSAGES_REF).child(mChatKey);
 
         // get View references
+        mToolbarLayout = findViewById(R.id.toolbar_layout);
         mToolbarImage = (ImageView) findViewById(R.id.toolbar_image);
         mToolbarPrimaryText = (TextView) findViewById(R.id.toolbar_primary_text);
         mToolbarSecondaryText = (TextView) findViewById(R.id.toolbar_secondary_text);
@@ -132,11 +135,19 @@ public class ChatActivity extends IgnisAuthActivity {
     }
 
     private void setUpChatToolbar() {
-        // TODO get user ID from Chat model and fill the toolbar with those values
+        // get user ID from Chat model and fill the toolbar with those values
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Chat chat = dataSnapshot.getValue(Chat.class);
+                final Chat chat = dataSnapshot.getValue(Chat.class);
+                mToolbarLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(ChatActivity.this, ContactInfoActivity.class);
+                        intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, chat.getChatUser(mUserKey));
+                        startActivity(intent);
+                    }
+                });
                 getDatabase().getReference(USERS_REF).child(chat.getChatUser(mUserKey))
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override

@@ -91,7 +91,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
         mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // TODO generate chat if it doesn't exist
+                // generate chat if it doesn't exist
                 final String contactKey = mContactsAdapter.getRef(position).getKey();
                 final String chatKey = generateChatKey(key, contactKey);
                 mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {

@@ -35,10 +35,8 @@
         </activity>
         <activity
             android:name=".ContactInfoActivity"
-            android:label="@string/title_activity_contact_info"
             android:parentActivityName=".ContactsActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateVisible">
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.videtur.ignis.ContactsActivity" />
@@ -63,7 +61,6 @@
         </activity>
         <activity
             android:name=".ChatActivity"
-            android:label="@string/title_activity_chat"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

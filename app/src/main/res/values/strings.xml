@@ -25,7 +25,6 @@
     <string name="title_activity_sign_in">Ignis</string>
     <string name="title_activity_contacts">Contacts</string>
     <string name="title_activity_add_contact">Add Contact</string>
-    <string name="title_activity_contact_info">ContactInfoActivity</string>
     <string name="email">Email</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="context_send_email">Send email</string>
@@ -38,8 +37,7 @@
     <string name="action_done">Done</string>
     <string name="contact_email_hint">Enter contact email</string>
     <string name="contact_already_added">Already a contact</string>
-    <string name="title_activity_new_message">NewMessageActivity</string>
-    <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_activity_new_message">New Message</string>
     <string name="chat_creation_failed">Failed to create chat</string>
     <string name="chat_message_hint">Message</string>
 </resources>
