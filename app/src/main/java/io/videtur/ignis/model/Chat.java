@@ -6,37 +6,24 @@ import java.util.Map;
 
 public class Chat {
 
-    private Map<String, Object> mChatUsers;
     private String mChatProfilePhoto;
     private String mChatName;
     private String mLastMessageText;
     private String mLastMessageSenderName;
     private String mLastMessageTimestamp;
+    private Map<String, Object> mMembers;
 
     public Chat() {
         // empty constructor for Firebase
     }
 
-    public Chat(Map<String, Object> chatUsers) {
-        this.mChatUsers = chatUsers;
+    public Chat(Map<String, Object> chatMembers) {
+        this.mMembers = chatMembers;
     }
 
     public Chat(String mChatProfilePhoto, String mChatName) {
         this.mChatProfilePhoto = mChatProfilePhoto;
         this.mChatName = mChatName;
-    }
-
-    @Exclude
-    public String getChatUser(String userKey) {
-        return (String) mChatUsers.get(userKey);
-    }
-
-    public Map<String, Object> getChatUsers() {
-        return mChatUsers;
-    }
-
-    public void setChatUsers(Map<String, Object> chatUsers) {
-        this.mChatUsers = chatUsers;
     }
 
     public String getChatProfilePhoto() {
@@ -77,5 +64,13 @@ public class Chat {
 
     public void setLastMessageTimestamp(String lastMessageTimestamp) {
         this.mLastMessageTimestamp = lastMessageTimestamp;
+    }
+
+    public Map<String, Object> getMembers() {
+        return mMembers;
+    }
+
+    public void setMembers(Map<String, Object> members) {
+        this.mMembers = members;
     }
 }

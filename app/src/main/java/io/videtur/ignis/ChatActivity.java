@@ -167,20 +167,27 @@ public class ChatActivity extends IgnisAuthActivity {
     }
 
     private void setUpChatToolbar() {
+        // TODO switch from chat user to chat members logic
         // get user ID from Chat model and fill the toolbar with those values
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final Chat chat = dataSnapshot.getValue(Chat.class);
+                final String contactKey;
+                if (!chat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
+                    contactKey = (String)chat.getMembers().keySet().toArray()[0];
+                } else {
+                    contactKey = (String) chat.getMembers().keySet().toArray()[1];
+                }
                 mToolbarLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(ChatActivity.this, ContactInfoActivity.class);
-                        intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, chat.getChatUser(mUserKey));
+                        intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, contactKey);
                         startActivity(intent);
                     }
                 });
-                getDatabase().getReference(USERS_REF).child(chat.getChatUser(mUserKey))
+                getDatabase().getReference(USERS_REF).child(contactKey)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {

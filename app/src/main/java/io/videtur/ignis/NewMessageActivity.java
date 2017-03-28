@@ -98,11 +98,17 @@ public class NewMessageActivity extends IgnisAuthActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                            Map<String, Object> chatUsers = new HashMap<>();
-                            chatUsers.put(key, contactKey);
-                            chatUsers.put(contactKey, key);
-                            mChatsRef.child(chatKey)
-                                    .setValue(new Chat(chatUsers))
+                            Map<String, Object> chatMembers = new HashMap<>();
+                            chatMembers.put(key, Boolean.TRUE);
+                            chatMembers.put(contactKey, Boolean.TRUE);
+
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
+                            updates.put("/users/" + key + "/chats/" + chatKey, Boolean.TRUE);
+                            updates.put("/users/" + contactKey + "/chats/" + chatKey, Boolean.TRUE);
+
+                            getDatabase().getReference()
+                                    .updateChildren(updates)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {

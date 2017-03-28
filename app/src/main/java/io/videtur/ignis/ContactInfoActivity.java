@@ -137,11 +137,17 @@ public class ContactInfoActivity extends IgnisAuthActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                            Map<String, Object> chatUsers = new HashMap<>();
-                            chatUsers.put(mUserKey, mContactKey);
-                            chatUsers.put(mContactKey, mUserKey);
-                            mChatsRef.child(chatKey)
-                                    .setValue(new Chat(chatUsers))
+                            Map<String, Object> chatMembers = new HashMap<>();
+                            chatMembers.put(mUserKey, Boolean.TRUE);
+                            chatMembers.put(mContactKey, Boolean.TRUE);
+
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
+                            updates.put("/users/" + mUserKey + "/chats/" + chatKey, Boolean.TRUE);
+                            updates.put("/users/" + mContactKey + "/chats/" + chatKey, Boolean.TRUE);
+
+                            getDatabase().getReference()
+                                    .updateChildren(updates)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
