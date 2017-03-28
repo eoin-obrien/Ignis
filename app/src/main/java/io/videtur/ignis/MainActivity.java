@@ -18,12 +18,23 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.firebase.ui.database.FirebaseIndexListAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
+import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
+
+import static io.videtur.ignis.util.Constants.CHAT_REF;
+import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.util.Util.formatLastOnlineTime;
 
 public class MainActivity extends IgnisAuthActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -36,6 +47,13 @@ public class MainActivity extends IgnisAuthActivity
     private ImageView mNavProfileImageView;
     private TextView mNavUserNameTextView;
     private TextView mNavUserEmailTextView;
+    private ListView mChatList;
+
+    private FirebaseIndexListAdapter<Chat> mChatsAdapter;
+    private DatabaseReference mChatsRef;
+    private DatabaseReference mUserChatsRef;
+    private DatabaseReference mUsersRef;
+    private String mUserKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +66,9 @@ public class MainActivity extends IgnisAuthActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO start NewMessageActivity
+                // start NewMessageActivity
+                Intent intent = new Intent(MainActivity.this, NewMessageActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -65,6 +85,8 @@ public class MainActivity extends IgnisAuthActivity
         mNavProfileImageView = (ImageView) headerView.findViewById(R.id.nav_profile_image);
         mNavUserNameTextView = (TextView) headerView.findViewById(R.id.nav_user_name);
         mNavUserEmailTextView = (TextView) headerView.findViewById(R.id.nav_user_email);
+
+        mChatList = (ListView) findViewById(R.id.chat_list);
     }
 
     @Override
@@ -82,12 +104,62 @@ public class MainActivity extends IgnisAuthActivity
     @Override
     public void onUserDataChange(String key, User user) {
         super.onUserDataChange(key, user);
+
+        mUserKey = key;
+
         Log.d(TAG, "user.getName:" + user.getName());
         Log.d(TAG, "user.getEmail:" + user.getEmail());
         Log.d(TAG, "user.getPhotoUrl:" + user.getPhotoUrl());
         Glide.with(this).load(user.getPhotoUrl()).fitCenter().into(mNavProfileImageView);
         mNavUserNameTextView.setText(user.getName());
         mNavUserEmailTextView.setText(user.getEmail());
+
+        mUserChatsRef = getDatabase().getReference("/users/" + key + "/chats");
+        mChatsRef = getDatabase().getReference(CHAT_REF);
+        mUsersRef = getDatabase().getReference(USERS_REF);
+        mChatsAdapter = new FirebaseIndexListAdapter<Chat>(this, Chat.class, R.layout.item_chat,
+                mUserChatsRef, mChatsRef) {
+            @Override
+            protected void populateView(View v, Chat chat, final int position) {
+                final ImageView chatImage = (ImageView) v.findViewById(R.id.chat_image);
+                final TextView chatName = (TextView) v.findViewById(R.id.chat_name);
+                final String contactKey;
+                if (!chat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
+                    contactKey = (String) chat.getMembers().keySet().toArray()[0];
+                } else {
+                    contactKey = (String) chat.getMembers().keySet().toArray()[1];
+                }
+
+                // clicking on a list item should start the corresponding chat
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String chatKey = mChatsAdapter.getRef(position).getKey();
+                        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                        intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
+                        startActivity(intent);
+                    }
+                });
+
+                // display chat details
+                mUsersRef.child(contactKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User contact = dataSnapshot.getValue(User.class);
+                        chatName.setText(contact.getName());
+                        Glide.with(MainActivity.this)
+                                .load(contact.getPhotoUrl())
+                                .into(chatImage);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        };
+        mChatList.setAdapter(mChatsAdapter);
     }
 
     @Override
@@ -107,7 +179,9 @@ public class MainActivity extends IgnisAuthActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_new_message) {
-            // TODO start NewMessageActivity
+            // start NewMessageActivity
+            Intent intent = new Intent(this, NewMessageActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_new_group) {
             // TODO start NewGroupActivity
         } else if (id == R.id.nav_contacts) {

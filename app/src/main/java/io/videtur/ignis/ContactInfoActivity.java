@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -19,18 +19,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
+import static io.videtur.ignis.util.Constants.CHAT_REF;
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.dpToPx;
 import static io.videtur.ignis.util.Util.formatLastOnlineTime;
+import static io.videtur.ignis.util.Util.generateChatKey;
 
 public class ContactInfoActivity extends IgnisAuthActivity {
 
@@ -49,6 +57,7 @@ public class ContactInfoActivity extends IgnisAuthActivity {
     private DatabaseReference mUserContactsRef;
     private ContactExistsListener mContactExistsListener;
     private DatabaseReference mContactRef;
+    private DatabaseReference mChatsRef;
     private ContactListener mContactListener;
     private String mContactKey;
     private String mUserKey;
@@ -116,18 +125,64 @@ public class ContactInfoActivity extends IgnisAuthActivity {
 
         mContactKey = getIntent().getStringExtra(ARG_CONTACT_KEY);
         mContactRef = getDatabase().getReference(USERS_REF).child(mContactKey);
+        mChatsRef = getDatabase().getReference(CHAT_REF);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO start ChatActivity with contact
+                // start ChatActivity with contact
+                final String chatKey = generateChatKey(mUserKey, mContactKey);
+                mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            Map<String, Object> chatMembers = new HashMap<>();
+                            chatMembers.put(mUserKey, Boolean.TRUE);
+                            chatMembers.put(mContactKey, Boolean.TRUE);
+
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
+                            updates.put("/users/" + mUserKey + "/chats/" + chatKey, Boolean.TRUE);
+                            updates.put("/users/" + mContactKey + "/chats/" + chatKey, Boolean.TRUE);
+
+                            getDatabase().getReference()
+                                    .updateChildren(updates)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            startChatActivity(chatKey);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            showToast(R.string.chat_creation_failed);
+                                        }
+                                    });
+                        } else {
+                            startChatActivity(chatKey);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+    }
+
+    private void startChatActivity(String chatKey) {
+        Intent intent = new Intent(ContactInfoActivity.this, ChatActivity.class);
+        intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
+        startActivity(intent);
+        finish();
     }
 
     @Override

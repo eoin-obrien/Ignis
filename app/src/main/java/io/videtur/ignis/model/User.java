@@ -13,6 +13,7 @@ public class User {
     private String mPhotoUrl;
     private long mLastOnline;
     private Map<String, Object> connections;
+    private Map<String, Object> chats;
 
     public User() {
     }
@@ -63,5 +64,13 @@ public class User {
 
     public void setConnections(Map<String, Object> connections) {
         this.connections = connections;
+    }
+
+    public Map<String, Object> getChats() {
+        return chats;
+    }
+
+    public void setChats(Map<String, Object> chats) {
+        this.chats = chats;
     }
 }
