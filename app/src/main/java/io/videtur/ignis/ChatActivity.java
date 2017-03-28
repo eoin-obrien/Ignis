@@ -7,7 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,8 +31,11 @@ import io.videtur.ignis.util.Util;
 
 import static io.videtur.ignis.util.Constants.CHAT_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
+import static io.videtur.ignis.util.Constants.MESSAGE_FROM_USER;
+import static io.videtur.ignis.util.Constants.MESSAGE_TO_USER;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.formatLastOnlineTime;
+import static io.videtur.ignis.util.Util.formatMessageTimestamp;
 
 public class ChatActivity extends IgnisAuthActivity {
 
@@ -114,8 +120,6 @@ public class ChatActivity extends IgnisAuthActivity {
             }
         });
 
-        setUpChatRecycler();
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
     }
@@ -128,6 +132,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mUserName = user.getName();
         mUserProfilePhotoUrl = user.getPhotoUrl();
 
+        setUpChatRecycler();
         setUpChatToolbar();
 
         // messages can be sent once the user is authenticated
@@ -181,15 +186,38 @@ public class ChatActivity extends IgnisAuthActivity {
         mChatAdapter = new FirebaseRecyclerAdapter<Message, MessageHolder>(Message.class,
                 R.layout.list_item_message, MessageHolder.class, mMessagesRef) {
             @Override
+            public MessageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                if (viewType == MESSAGE_FROM_USER) {
+                    View messageView = LayoutInflater.from(ChatActivity.this)
+                            .inflate(R.layout.item_message_from_user, parent, false);
+                    return new MessageHolder(messageView);
+                } else {
+                    View messageView = LayoutInflater.from(ChatActivity.this)
+                            .inflate(R.layout.item_message_to_user, parent, false);
+                    return new MessageHolder(messageView);
+                }
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                Message message = getItem(position);
+                if (message.getSenderKey().equals(mUserKey)) {
+                    return MESSAGE_FROM_USER;
+                } else {
+                    return MESSAGE_TO_USER;
+                }
+            }
+
+            @Override
             protected void populateViewHolder(MessageHolder viewHolder, Message model, int position) {
                 viewHolder.mMessageText.setText(model.getText());
-                viewHolder.mSenderName.setText(model.getSenderName());
-                // TODO format timestamp
-                // viewHolder.mTimestampText.setText(String.valueOf(model.getTimestampLong()));
-                Glide.with(ChatActivity.this)
+                // viewHolder.mSenderName.setText(model.getSenderName());
+                viewHolder.mTimestampText.setText(formatMessageTimestamp(model.getTimestampLong()));
+                /*Glide.with(ChatActivity.this)
                         .load(model.getSenderPhotoUrl())
-                        .into(viewHolder.mSenderProfileImage);
+                        .into(viewHolder.mSenderProfileImage);*/
             }
+
         };
         mChatAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -209,17 +237,13 @@ public class ChatActivity extends IgnisAuthActivity {
     }
 
     private static class MessageHolder extends RecyclerView.ViewHolder {
-        private ImageView mSenderProfileImage;
         private TextView mMessageText;
-        private TextView mSenderName;
         private TextView mTimestampText;
 
         public MessageHolder(View itemView) {
             super(itemView);
 
-            mSenderProfileImage = (ImageView) itemView.findViewById(R.id.sender_profile_image);
             mMessageText = (TextView) itemView.findViewById(R.id.message_text);
-            mSenderName = (TextView) itemView.findViewById(R.id.sender_text);
             mTimestampText = (TextView) itemView.findViewById(R.id.timestamp_text);
         }
     }

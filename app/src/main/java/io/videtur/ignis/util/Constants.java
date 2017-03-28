@@ -13,6 +13,10 @@ public final class Constants {
     public static final String CONNECTIONS_CHILD = "connections";
     public static final String LAST_ONLINE_CHILD = "lastOnline";
 
+    // Item types for chat recycler
+    public static final int MESSAGE_FROM_USER = 0;
+    public static final int MESSAGE_TO_USER = 1;
+
     public static final String CHAT_KEY_DELIMITER = ",";
 
     private Constants() {

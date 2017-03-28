@@ -61,6 +61,31 @@ public final class Util {
         return formattedLastOnlineTime;
     }
 
+    public static String formatMessageTimestamp(long timestampMs) {
+        String formattedLastOnlineTime;
+        Calendar now = Calendar.getInstance();
+        Calendar timestamp = Calendar.getInstance();
+        timestamp.setTimeInMillis(timestampMs);
+
+        long difference = now.getTimeInMillis() - timestamp.getTimeInMillis();
+        long daysDifference = TimeUnit.MILLISECONDS.toDays(difference);
+        boolean sameYear = now.get(Calendar.YEAR) == timestamp.get(Calendar.YEAR);
+        boolean sameDay = sameYear && now.get(Calendar.DAY_OF_YEAR) == timestamp.get(Calendar.DAY_OF_YEAR);
+        boolean sameWeek = daysDifference < 7;
+
+        if (sameDay) {
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+            formattedLastOnlineTime = formatter.format(timestamp.getTime());
+        } else if (sameWeek) {
+            SimpleDateFormat formatter = new SimpleDateFormat("EEE HH:mm");
+            formattedLastOnlineTime = formatter.format(timestamp.getTime());
+        } else {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yy HH:mm");
+            formattedLastOnlineTime = formatter.format(timestamp.getTime());
+        }
+        return formattedLastOnlineTime;
+    }
+
     public static float dpToPx(Context context, float dp) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, displayMetrics);
