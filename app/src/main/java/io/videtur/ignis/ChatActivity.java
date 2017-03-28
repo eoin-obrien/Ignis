@@ -2,6 +2,7 @@ package io.videtur.ignis;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -61,6 +62,7 @@ public class ChatActivity extends IgnisAuthActivity {
     private ImageView mToolbarImage;
     private TextView mToolbarPrimaryText;
     private TextView mToolbarSecondaryText;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,31 @@ public class ChatActivity extends IgnisAuthActivity {
         mChatRecycler = (RecyclerView) findViewById(R.id.chat_recycler);
         mMessageEditText = (EditText) findViewById(R.id.message_edit_text);
         mSendButton = (Button) findViewById(R.id.send_button);
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+
+        // set up listener on FAB to return to the bottom of the chat
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mChatRecycler.scrollToPosition(mChatAdapter.getItemCount() - 1);
+            }
+        });
+
+        // hide FAB initially
+        mFab.setVisibility(View.GONE);
+
+        // show FAB if scrolling down and not at last message
+        mChatRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int lastItem = mLayoutManager.findLastVisibleItemPosition();
+                if (dy > 0 && lastItem < mChatAdapter.getItemCount() - 1) {
+                    mFab.setVisibility(View.VISIBLE);
+                } else {
+                    mFab.setVisibility(View.GONE);
+                }
+            }
+        });
 
         // EditText and Button should start off disabled
         mMessageEditText.setEnabled(false);
@@ -121,7 +148,7 @@ public class ChatActivity extends IgnisAuthActivity {
         });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("");
+        // getSupportActionBar().setTitle("");
     }
 
     @Override
@@ -217,7 +244,6 @@ public class ChatActivity extends IgnisAuthActivity {
                         .load(model.getSenderPhotoUrl())
                         .into(viewHolder.mSenderProfileImage);*/
             }
-
         };
         mChatAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
