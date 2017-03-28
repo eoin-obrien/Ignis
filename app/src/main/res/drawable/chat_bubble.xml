@@ -4,9 +4,9 @@
 
     <solid android:color="@color/primary_light" />
     <corners
-        android:bottomLeftRadius="8dp"
-        android:bottomRightRadius="8dp"
-        android:topLeftRadius="8dp"
-        android:topRightRadius="8dp" />
+        android:bottomLeftRadius="@dimen/chat_bubble_radius"
+        android:bottomRightRadius="@dimen/chat_bubble_radius"
+        android:topLeftRadius="@dimen/chat_bubble_radius"
+        android:topRightRadius="@dimen/chat_bubble_radius" />
 
 </shape>
