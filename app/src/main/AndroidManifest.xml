@@ -67,6 +67,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.videtur.ignis.MainActivity" />
         </activity>
+
+        <service
+            android:name="io.videtur.ignis.service.NotificationService"
+            android:enabled="true" >
+        </service>
+
+        <receiver
+            android:name="io.videtur.ignis.service.ServiceRestartBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartNotificationServiceWhenStopped">
+            <intent-filter>
+                <action android:name="io.videtur.ignis.service.RestartNotificationService"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

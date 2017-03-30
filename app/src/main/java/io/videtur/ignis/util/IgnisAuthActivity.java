@@ -1,5 +1,7 @@
 package io.videtur.ignis.util;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import io.videtur.ignis.R;
 import io.videtur.ignis.SignInActivity;
 import io.videtur.ignis.model.User;
+import io.videtur.ignis.service.NotificationService;
 
 import static io.videtur.ignis.util.Constants.CONNECTED_REF;
 import static io.videtur.ignis.util.Constants.CONNECTIONS_CHILD;
@@ -45,6 +48,8 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
     private ValueEventListener mUserListener;
     private ValueEventListener mConnectedListener;
     private String mPresentUserKey;
+    private NotificationService mSensorService;
+    private Intent mServiceIntent;
 
     public FirebaseDatabase getDatabase() {
         return mDatabase;
@@ -59,6 +64,12 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         mDatabase = FirebaseDatabase.getInstance();
         mUsersRef = mDatabase.getReference(USERS_REF);
         mConnectedRef = mDatabase.getReference(CONNECTED_REF);
+
+        mSensorService = new NotificationService(getApplicationContext());
+        mServiceIntent = new Intent(getApplicationContext(), mSensorService.getClass());
+        if (!isServiceRunning(mSensorService.getClass())) {
+            startService(mServiceIntent);
+        }
     }
 
     @Override
@@ -222,6 +233,18 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
                 Log.e(TAG, databaseError.getMessage());
             }
         });
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
+                Log.d(TAG, "isServiceRunning:true");
+                return true;
+            }
+        }
+        Log.d(TAG, "isServiceRunning:false");
+        return false;
     }
 
 }
