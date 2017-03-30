@@ -14,6 +14,7 @@ public class User {
     private long mLastOnline;
     private Map<String, Object> connections;
     private Map<String, Object> chats;
+    private Map<String, Object> unread;
 
     public User() {
     }
@@ -72,5 +73,13 @@ public class User {
 
     public void setChats(Map<String, Object> chats) {
         this.chats = chats;
+    }
+
+    public Map<String, Object> getUnread() {
+        return unread;
+    }
+
+    public void setUnread(Map<String, Object> unread) {
+        this.unread = unread;
     }
 }

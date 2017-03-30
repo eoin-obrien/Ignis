@@ -2,7 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <solid android:color="@color/material_blue" />
+    <solid android:color="@android:color/white" />
     <corners
         android:bottomLeftRadius="@dimen/chat_bubble_radius"
         android:bottomRightRadius="@dimen/chat_bubble_radius"

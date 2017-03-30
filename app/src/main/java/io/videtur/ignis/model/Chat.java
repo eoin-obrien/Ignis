@@ -8,9 +8,7 @@ public class Chat {
 
     private String mChatProfilePhoto;
     private String mChatName;
-    private String mLastMessageText;
-    private String mLastMessageSenderName;
-    private String mLastMessageTimestamp;
+    private String mLastMessage;
     private Map<String, Object> mMembers;
 
     public Chat() {
@@ -42,28 +40,12 @@ public class Chat {
         this.mChatName = chatName;
     }
 
-    public String getLastMessageText() {
-        return mLastMessageText;
+    public String getLastMessage() {
+        return mLastMessage;
     }
 
-    public void setLastMessageText(String lastMessageText) {
-        this.mLastMessageText = lastMessageText;
-    }
-
-    public String getLastMessageSenderName() {
-        return mLastMessageSenderName;
-    }
-
-    public void setLastMessageSenderName(String lastMessageSenderName) {
-        this.mLastMessageSenderName = lastMessageSenderName;
-    }
-
-    public String getLastMessageTimestamp() {
-        return mLastMessageTimestamp;
-    }
-
-    public void setLastMessageTimestamp(String lastMessageTimestamp) {
-        this.mLastMessageTimestamp = lastMessageTimestamp;
+    public void setLastMessage(String lastMessage) {
+        this.mLastMessage = lastMessage;
     }
 
     public Map<String, Object> getMembers() {

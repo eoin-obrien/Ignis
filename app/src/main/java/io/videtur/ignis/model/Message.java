@@ -14,6 +14,8 @@ public class Message {
     private String mSenderKey;
     private String mSenderName;
     private String mSenderPhotoUrl;
+    private Map<String, Object> mReadReceipts;
+    private Map<String, Object> mDeliveryReceipts;
 
     private Map<String, Object> mTimestamp;
 
@@ -73,5 +75,21 @@ public class Message {
     @Exclude
     public long getTimestampLong() {
         return (long) mTimestamp.get("TIMESTAMP");
+    }
+
+    public Map<String, Object> getReadReceipts() {
+        return mReadReceipts;
+    }
+
+    public void setReadReceipts(Map<String, Object> readReceipts) {
+        this.mReadReceipts = readReceipts;
+    }
+
+    public Map<String, Object> getDeliveryReceipts() {
+        return mDeliveryReceipts;
+    }
+
+    public void setDeliveryReceipts(Map<String, Object> deliveryReceipts) {
+        this.mDeliveryReceipts = deliveryReceipts;
     }
 }

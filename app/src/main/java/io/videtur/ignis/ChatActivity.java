@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +21,19 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
-import io.videtur.ignis.util.Util;
 
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static io.videtur.ignis.util.Constants.CHAT_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
 import static io.videtur.ignis.util.Constants.MESSAGE_FROM_USER;
@@ -48,7 +52,8 @@ public class ChatActivity extends IgnisAuthActivity {
     private String mUserKey;
     private String mUserName;
     private String mUserProfilePhotoUrl;
-    private boolean mIsGroupChat;
+    private Chat mChat;
+    private User mUser;
 
     private DatabaseReference mChatRef;
     private DatabaseReference mMessagesRef;
@@ -119,9 +124,22 @@ public class ChatActivity extends IgnisAuthActivity {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String messageText = mMessageEditText.getText().toString();
+                final String messageText = mMessageEditText.getText().toString();
                 Message message = new Message(messageText, mUserKey, mUserName, mUserProfilePhotoUrl);
-                mMessagesRef.push().setValue(message);
+                String messageKey = mMessagesRef.push().getKey();
+
+                // set last message details
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("/messages/" + mChatKey + "/" + messageKey, message);
+                updates.put("/chats/" + mChatKey + "/lastMessage", messageKey);
+                for (String memberKey : mChat.getMembers().keySet()) {
+                    // Don't track read receipts for the sender
+                    if (!memberKey.equals(mUserKey)) {
+                        updates.put("/users/" + memberKey + "/chats/" + mChatKey, ServerValue.TIMESTAMP);
+                        updates.put("/users/" + memberKey + "/unread/" + mChatKey + "/" + messageKey, Boolean.TRUE);
+                    }
+                }
+                getDatabase().getReference().updateChildren(updates);
                 mMessageEditText.setText("");
             }
         });
@@ -155,62 +173,63 @@ public class ChatActivity extends IgnisAuthActivity {
     public void onUserDataChange(String key, User user) {
         super.onUserDataChange(key, user);
 
+        mUser = user;
         mUserKey = key;
         mUserName = user.getName();
         mUserProfilePhotoUrl = user.getPhotoUrl();
 
-        setUpChatRecycler();
-        setUpChatToolbar();
-
         // messages can be sent once the user is authenticated
-        mMessageEditText.setEnabled(true);
+        if (mChat == null) {
+            mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    mChat = dataSnapshot.getValue(Chat.class);
+                    setUpChatRecycler();
+                    setUpChatToolbar();
+                    mMessageEditText.setEnabled(true);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     private void setUpChatToolbar() {
-        // TODO switch from chat user to chat members logic
         // get user ID from Chat model and fill the toolbar with those values
-        mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        final String contactKey;
+        if (!mChat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
+            contactKey = (String) mChat.getMembers().keySet().toArray()[0];
+        } else {
+            contactKey = (String) mChat.getMembers().keySet().toArray()[1];
+        }
+        mToolbarLayout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final Chat chat = dataSnapshot.getValue(Chat.class);
-                final String contactKey;
-                if (!chat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
-                    contactKey = (String)chat.getMembers().keySet().toArray()[0];
-                } else {
-                    contactKey = (String) chat.getMembers().keySet().toArray()[1];
-                }
-                mToolbarLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(ChatActivity.this, ContactInfoActivity.class);
-                        intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, contactKey);
-                        startActivity(intent);
-                    }
-                });
-                getDatabase().getReference(USERS_REF).child(contactKey)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                User contact = dataSnapshot.getValue(User.class);
-                                mToolbarPrimaryText.setText(contact.getName());
-                                mToolbarSecondaryText.setText(formatLastOnlineTime(contact.getLastOnline()));
-                                Glide.with(ChatActivity.this)
-                                        .load(contact.getPhotoUrl())
-                                        .into(mToolbarImage);
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+            public void onClick(View v) {
+                Intent intent = new Intent(ChatActivity.this, ContactInfoActivity.class);
+                intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, contactKey);
+                startActivity(intent);
             }
         });
+        getDatabase().getReference(USERS_REF).child(contactKey)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User contact = dataSnapshot.getValue(User.class);
+                        mToolbarPrimaryText.setText(contact.getName());
+                        mToolbarSecondaryText.setText(formatLastOnlineTime(contact.getLastOnline()));
+                        Glide.with(ChatActivity.this)
+                                .load(contact.getPhotoUrl())
+                                .into(mToolbarImage);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void setUpChatRecycler() {
@@ -244,9 +263,28 @@ public class ChatActivity extends IgnisAuthActivity {
 
             @Override
             protected void populateViewHolder(MessageHolder viewHolder, Message model, int position) {
+                String messageKey = this.getRef(position).getKey();
                 viewHolder.mMessageText.setText(model.getText());
-                // viewHolder.mSenderName.setText(model.getSenderName());
                 viewHolder.mTimestampText.setText(formatMessageTimestamp(model.getTimestampLong()));
+
+                if (viewHolder.mReadReceipt != null) {
+                    if (model.getReadReceipts() != null) {
+                        viewHolder.mReadReceipt.setImageResource(R.drawable.ic_message_seen);
+                    } else if (model.getDeliveryReceipts() != null) {
+                        viewHolder.mReadReceipt.setImageResource(R.drawable.ic_message_delivered);
+                    } else {
+                        viewHolder.mReadReceipt.setImageResource(R.drawable.ic_message_pending);
+                    }
+                }
+
+                // Mark message as read
+                if (!model.getSenderKey().equals(mUserKey) && (model.getReadReceipts() == null
+                        || !model.getReadReceipts().containsKey(mUserKey))) {
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("/users/" + mUserKey + "/unread/" + mChatKey + "/" + messageKey, null);
+                    updates.put("/messages/" + mChatKey + "/" + messageKey + "/readReceipts/" + mUserKey, ServerValue.TIMESTAMP);
+                    getDatabase().getReference().updateChildren(updates);
+                }
                 /*Glide.with(ChatActivity.this)
                         .load(model.getSenderPhotoUrl())
                         .into(viewHolder.mSenderProfileImage);*/
@@ -256,9 +294,10 @@ public class ChatActivity extends IgnisAuthActivity {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+
                 int messageCount = mChatAdapter.getItemCount();
                 int lastCompletelyVisiblePosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (lastCompletelyVisiblePosition == -1 || (positionStart >= (messageCount - 1)
+                if (lastCompletelyVisiblePosition == NO_POSITION || (positionStart >= (messageCount - 1)
                         && lastCompletelyVisiblePosition == (positionStart - 1))) {
                     mChatRecycler.scrollToPosition(positionStart);
                 }
@@ -272,12 +311,14 @@ public class ChatActivity extends IgnisAuthActivity {
     private static class MessageHolder extends RecyclerView.ViewHolder {
         private TextView mMessageText;
         private TextView mTimestampText;
+        private ImageView mReadReceipt;
 
         public MessageHolder(View itemView) {
             super(itemView);
 
             mMessageText = (TextView) itemView.findViewById(R.id.message_text);
             mTimestampText = (TextView) itemView.findViewById(R.id.timestamp_text);
+            mReadReceipt = (ImageView) itemView.findViewById(R.id.chat_read_receipt);
         }
     }
 }
