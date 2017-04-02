@@ -35,8 +35,9 @@ import static io.videtur.ignis.util.Util.getKeyFromEmail;
 public class NotificationService extends Service {
 
     private static final String TAG = "NotificationService";
+    private static final String RESTART_BROADCAST = "io.videtur.ignis.service.RestartNotificationService";
     private static final int NOTIFICATION_ID = 1;
-    private static final int LED_COLOR = 0x2196f3;
+    private static final int LED_COLOR = 0xff2196f3;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -57,7 +58,6 @@ public class NotificationService extends Service {
     public NotificationService(Context applicationContext) {
         super();
         mContext = applicationContext;
-        mRes = mContext.getResources();
     }
 
     public NotificationService() {
@@ -67,6 +67,8 @@ public class NotificationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Log.d(TAG, "onStartCommand");
+
+        mRes = getApplicationContext().getResources();
 
         // Set up notifications
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -110,9 +112,9 @@ public class NotificationService extends Service {
         super.onDestroy();
         Log.i(TAG, "onDestroy()");
         mAuth.removeAuthStateListener(mAuthStateListener);
-        // TODO restart service if destroyed
-        // Intent broadcastIntent = new Intent("BroadcastReceiver");
-        // sendBroadcast(broadcastIntent);
+        // restart service if destroyed
+        Intent broadcastIntent = new Intent(RESTART_BROADCAST);
+        sendBroadcast(broadcastIntent);
     }
 
     private void notifyMessages(DataSnapshot unreadSnapshot) {
