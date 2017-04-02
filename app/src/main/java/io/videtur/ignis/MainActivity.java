@@ -35,7 +35,7 @@ import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CHAT_REF;
+import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.formatChatTimestamp;
@@ -121,7 +121,7 @@ public class MainActivity extends IgnisAuthActivity
 
         mUserChatsRef = getDatabase().getReference("/users/" + key + "/chats");
         mMessagesRef = getDatabase().getReference(MESSAGES_REF);
-        mChatsRef = getDatabase().getReference(CHAT_REF);
+        mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
         mChatsAdapter = new FirebaseIndexListAdapter<Chat>(this, Chat.class, R.layout.item_chat,
                 mUserChatsRef, mChatsRef) {

@@ -25,7 +25,6 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.videtur.ignis.model.Chat;
@@ -34,7 +33,7 @@ import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
-import static io.videtur.ignis.util.Constants.CHAT_REF;
+import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
 import static io.videtur.ignis.util.Constants.MESSAGE_FROM_USER;
 import static io.videtur.ignis.util.Constants.MESSAGE_TO_USER;
@@ -79,7 +78,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mChatKey = getIntent().getStringExtra(ARG_CHAT_KEY);
         assert mChatKey != null;
 
-        mChatRef = getDatabase().getReference(CHAT_REF).child(mChatKey);
+        mChatRef = getDatabase().getReference(CHATS_REF).child(mChatKey);
         mMessagesRef = getDatabase().getReference(MESSAGES_REF).child(mChatKey);
 
         // get View references

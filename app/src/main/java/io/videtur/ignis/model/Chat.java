@@ -1,58 +1,57 @@
 package io.videtur.ignis.model;
 
-import com.google.firebase.database.Exclude;
-
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class Chat {
 
-    private String mChatProfilePhoto;
-    private String mChatName;
-    private String mLastMessage;
-    private Map<String, Object> mMembers;
+    private String chatProfilePhoto;
+    private String chatName;
+    private String lastMessage;
+    private Map<String, Object> members;
 
     public Chat() {
         // empty constructor for Firebase
     }
 
     public Chat(Map<String, Object> chatMembers) {
-        this.mMembers = chatMembers;
+        this.members = chatMembers;
     }
 
-    public Chat(String mChatProfilePhoto, String mChatName) {
-        this.mChatProfilePhoto = mChatProfilePhoto;
-        this.mChatName = mChatName;
+    public Chat(String chatProfilePhoto, String chatName) {
+        this.chatProfilePhoto = chatProfilePhoto;
+        this.chatName = chatName;
     }
 
     public String getChatProfilePhoto() {
-        return mChatProfilePhoto;
+        return chatProfilePhoto;
     }
 
     public void setChatProfilePhoto(String chatProfilePhoto) {
-        this.mChatProfilePhoto = chatProfilePhoto;
+        this.chatProfilePhoto = chatProfilePhoto;
     }
 
     public String getChatName() {
-        return mChatName;
+        return chatName;
     }
 
     public void setChatName(String chatName) {
-        this.mChatName = chatName;
+        this.chatName = chatName;
     }
 
     public String getLastMessage() {
-        return mLastMessage;
+        return lastMessage;
     }
 
     public void setLastMessage(String lastMessage) {
-        this.mLastMessage = lastMessage;
+        this.lastMessage = lastMessage;
     }
 
     public Map<String, Object> getMembers() {
-        return mMembers;
+        return members;
     }
 
     public void setMembers(Map<String, Object> members) {
-        this.mMembers = members;
+        this.members = members;
     }
 }

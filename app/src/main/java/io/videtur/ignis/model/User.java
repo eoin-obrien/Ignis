@@ -4,9 +4,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class User {
-
-    private static final String TAG = "User";
 
     private String mName;
     private String mEmail;

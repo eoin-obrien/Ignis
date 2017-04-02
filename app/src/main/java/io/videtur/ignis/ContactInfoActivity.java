@@ -33,7 +33,7 @@ import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CHAT_REF;
+import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.dpToPx;
@@ -125,53 +125,8 @@ public class ContactInfoActivity extends IgnisAuthActivity {
 
         mContactKey = getIntent().getStringExtra(ARG_CONTACT_KEY);
         mContactRef = getDatabase().getReference(USERS_REF).child(mContactKey);
-        mChatsRef = getDatabase().getReference(CHAT_REF);
+        mChatsRef = getDatabase().getReference(CHATS_REF);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // start ChatActivity with contact
-                final String chatKey = generateChatKey(mUserKey, mContactKey);
-                mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            Map<String, Object> chatMembers = new HashMap<>();
-                            chatMembers.put(mUserKey, Boolean.TRUE);
-                            chatMembers.put(mContactKey, Boolean.TRUE);
-
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
-                            updates.put("/users/" + mUserKey + "/chats/" + chatKey, Boolean.TRUE);
-                            updates.put("/users/" + mContactKey + "/chats/" + chatKey, Boolean.TRUE);
-
-                            getDatabase().getReference()
-                                    .updateChildren(updates)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            startChatActivity(chatKey);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            showToast(R.string.chat_creation_failed);
-                                        }
-                                    });
-                        } else {
-                            startChatActivity(chatKey);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-        });
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);

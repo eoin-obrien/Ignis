@@ -30,7 +30,7 @@ import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CHAT_REF;
+import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.formatLastOnlineTime;
@@ -64,7 +64,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
 
         // Setup database references
         mContactsRef = getDatabase().getReference(CONTACTS_REF);
-        mChatsRef = getDatabase().getReference(CHAT_REF);
+        mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
 
         if (getSupportActionBar() != null) {

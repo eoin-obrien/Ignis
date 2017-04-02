@@ -6,7 +6,7 @@ public final class Constants {
     public static final String CONNECTED_REF = ".info/connected";
     public static final String CONTACTS_REF = "contacts";
     public static final String USERS_REF = "users";
-    public static final String CHAT_REF = "chats";
+    public static final String CHATS_REF = "chats";
     public static final String MESSAGES_REF = "messages";
 
     // Firebase database children
