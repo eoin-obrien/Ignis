@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,8 +18,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import io.videtur.ignis.ChatActivity;
@@ -33,6 +36,7 @@ public class NotificationService extends Service {
 
     private static final String TAG = "NotificationService";
     private static final int NOTIFICATION_ID = 1;
+    private static final int LED_COLOR = 0x2196f3;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -44,6 +48,8 @@ public class NotificationService extends Service {
     private ValueEventListener mUnreadMessagesListener;
 
     private Context mContext;
+    private Resources mRes;
+    private String mUserKey;
 
     private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mNotifyBuilder;
@@ -51,6 +57,7 @@ public class NotificationService extends Service {
     public NotificationService(Context applicationContext) {
         super();
         mContext = applicationContext;
+        mRes = mContext.getResources();
     }
 
     public NotificationService() {
@@ -74,10 +81,10 @@ public class NotificationService extends Service {
                         mUnreadMessagesRef.removeEventListener(mUnreadMessagesListener);
                     }
 
-                    String userKey = getKeyFromEmail(firebaseAuth.getCurrentUser().getEmail());
+                    mUserKey = getKeyFromEmail(firebaseAuth.getCurrentUser().getEmail());
                     mDatabase = FirebaseDatabase.getInstance();
                     mMessagesRef = mDatabase.getReference(MESSAGES_REF);
-                    mUnreadMessagesRef = mDatabase.getReference(USERS_REF).child(userKey).child("unread");
+                    mUnreadMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child("unread");
 
                     mUnreadMessagesListener = mUnreadMessagesRef.addValueEventListener(new ValueEventListener() {
                         @Override
@@ -95,11 +102,9 @@ public class NotificationService extends Service {
         };
         mAuth.addAuthStateListener(mAuthStateListener);
 
-
-        // TODO set up listener on unread messages
-        // TODO mark unread messages as delivered
         return START_STICKY;
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -113,39 +118,48 @@ public class NotificationService extends Service {
     private void notifyMessages(DataSnapshot unreadSnapshot) {
         long chatCount = unreadSnapshot.getChildrenCount();
         long totalMessageCount = 0;
+        Map<String, Object> updates = new HashMap<>();
 
         for (DataSnapshot chatSnapshot : unreadSnapshot.getChildren()) {
             totalMessageCount += chatSnapshot.getChildrenCount();
-            // TODO mark messages as delivered
-            // TODO vibrate and play sound if not delivered
             for (DataSnapshot messageSnapshot : chatSnapshot.getChildren()) {
-                Log.d(TAG, chatSnapshot.getKey() + ":" + messageSnapshot.getKey());
+                Boolean pendingDelivery = messageSnapshot.getValue(Boolean.class);
+                if (pendingDelivery) {
+                    updates.put("/users/" + mUserKey + "/unread/" + chatSnapshot.getKey()
+                            + "/" + messageSnapshot.getKey(), Boolean.FALSE);
+                    updates.put("/messages/" + chatSnapshot.getKey() + "/" + messageSnapshot.getKey()
+                            + "/deliveryReceipts/" + mUserKey, ServerValue.TIMESTAMP);
+                }
             }
         }
-        String notificationText = "";
+
         if (totalMessageCount >= 1) {
-            if (totalMessageCount == 1) {
-                notificationText += "1 new message";
-            } else {
-                notificationText += totalMessageCount + " new messages";
-            }
             PendingIntent pendingIntent;
             if (chatCount == 1) {
-                notificationText += " in " + chatCount + " chat";
                 pendingIntent = getIntentForSingleChat(unreadSnapshot.getChildren().iterator().next().getKey());
             } else {
-                notificationText += " in " + chatCount + " chats";
                 pendingIntent = getIntentForMultipleChats();
             }
             mNotifyBuilder = new NotificationCompat.Builder(this)
                     .setContentIntent(pendingIntent)
                     .setContentTitle(getResources().getString(R.string.app_name))
-                    .setContentText(notificationText)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setContentText(getNotificationText(chatCount, totalMessageCount))
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setLights(LED_COLOR, 1000, 1000);
+            if (updates.size() > 0) {
+                mNotifyBuilder.setDefaults(NotificationCompat.DEFAULT_SOUND);
+                mNotifyBuilder.setDefaults(NotificationCompat.DEFAULT_VIBRATE);
+            }
             mNotificationManager.notify(NOTIFICATION_ID, mNotifyBuilder.build());
+            mDatabase.getReference().updateChildren(updates);
         } else {
             mNotificationManager.cancel(NOTIFICATION_ID);
         }
+    }
+
+    private String getNotificationText(long chatCount, long messageCount) {
+        return mRes.getQuantityString(R.plurals.number_of_unread_messages, (int) messageCount, messageCount)
+                + mRes.getQuantityString(R.plurals.number_of_unread_chats, (int) chatCount, chatCount);
     }
 
     private PendingIntent getIntentForSingleChat(String chatKey) {
