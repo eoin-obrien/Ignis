@@ -13,7 +13,7 @@
     <dimen name="avatar_font_size">14sp</dimen>
     <dimen name="chat_message_gutter">40dp</dimen>
     <dimen name="chat_message_padding">4dp</dimen>
-    <dimen name="chat_bubble_padding">8dp</dimen>
-    <dimen name="chat_bubble_radius">16dp</dimen>
+    <dimen name="chat_bubble_padding">10dp</dimen>
+    <dimen name="chat_bubble_radius">20dp</dimen>
     <dimen name="chat_bubble_text_size">16sp</dimen>
 </resources>

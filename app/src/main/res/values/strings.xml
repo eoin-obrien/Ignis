@@ -16,6 +16,16 @@
     <string name="contacts_search_hint">Search…</string>
     <string name="contacts_list_empty">No results</string>
 
+    <!-- Notifications -->
+    <plurals name="number_of_unread_messages">
+        <item quantity="one">%d new message</item>
+        <item quantity="other">%d new messages</item>
+    </plurals>
+    <plurals name="number_of_unread_chats">
+        <item quantity="one"> from %d chat</item>
+        <item quantity="other"> from %d chats</item>
+    </plurals>
+
     <!-- Navigation drawer -->
     <string name="nav_new_message">New Message</string>
     <string name="nav_new_group">New Group</string>

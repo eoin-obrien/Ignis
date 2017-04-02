@@ -11,6 +11,7 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/chat_bubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -25,15 +26,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearance"
-            android:textSize="@dimen/chat_bubble_text_size"
-            android:textColor="@android:color/white"/>
-
-        <TextView
-            android:id="@+id/timestamp_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/chat_bubble_text_size" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/chat_read_receipt"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/chat_bubble"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/chat_bubble_padding"
+        android:layout_marginRight="@dimen/chat_bubble_padding" />
+
+    <TextView
+        android:id="@+id/timestamp_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chat_bubble"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_toLeftOf="@id/chat_read_receipt"
+        android:layout_toStartOf="@id/chat_read_receipt"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
