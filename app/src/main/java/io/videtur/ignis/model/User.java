@@ -7,10 +7,10 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class User {
 
-    private String mName;
-    private String mEmail;
-    private String mPhotoUrl;
-    private long mLastOnline;
+    private String name;
+    private String email;
+    private String photoUrl;
+    private long lastOnline;
     private Map<String, Object> connections;
     private Map<String, Object> chats;
     private Map<String, Object> unread;
@@ -19,43 +19,43 @@ public class User {
     }
 
     public User(FirebaseUser firebaseUser) {
-        mName = firebaseUser.getDisplayName();
-        mEmail = firebaseUser.getEmail();
+        name = firebaseUser.getDisplayName();
+        email = firebaseUser.getEmail();
         if (firebaseUser.getPhotoUrl() != null) {
-            mPhotoUrl = firebaseUser.getPhotoUrl().toString();
+            photoUrl = firebaseUser.getPhotoUrl().toString();
         }
     }
 
     public String getName() {
-        return mName;
+        return name;
     }
 
     public void setName(String mName) {
-        this.mName = mName;
+        this.name = mName;
     }
 
     public String getEmail() {
-        return mEmail;
+        return email;
     }
 
     public void setEmail(String mEmail) {
-        this.mEmail = mEmail;
+        this.email = mEmail;
     }
 
     public String getPhotoUrl() {
-        return mPhotoUrl;
+        return photoUrl;
     }
 
     public void setPhotoUrl(String mPhotoUrl) {
-        this.mPhotoUrl = mPhotoUrl;
+        this.photoUrl = mPhotoUrl;
     }
 
     public long getLastOnline() {
-        return mLastOnline;
+        return lastOnline;
     }
 
     public void setLastOnline(long mLastOnline) {
-        this.mLastOnline = mLastOnline;
+        this.lastOnline = mLastOnline;
     }
 
     public Map<String, Object> getConnections() {
