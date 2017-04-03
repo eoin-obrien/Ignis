@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -190,7 +191,9 @@ public class ChatActivity extends IgnisAuthActivity {
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
+                    if (databaseError != null) {
+                        Log.e(TAG, databaseError.getMessage());
+                    }
                 }
             });
         }
@@ -226,7 +229,9 @@ public class ChatActivity extends IgnisAuthActivity {
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        if (databaseError != null) {
+                            Log.e(TAG, databaseError.getMessage());
+                        }
                     }
                 });
     }

@@ -133,7 +133,9 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.e(TAG, databaseError.getMessage());
+                    if (databaseError != null) {
+                        Log.e(TAG, databaseError.getMessage());
+                    }
                 }
             });
         } else {
@@ -231,7 +233,9 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, databaseError.getMessage());
+                if (databaseError != null) {
+                    Log.e(TAG, databaseError.getMessage());
+                }
             }
         });
     }

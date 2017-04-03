@@ -168,7 +168,9 @@ public class MainActivity extends IgnisAuthActivity
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
+                            if (databaseError != null) {
+                                Log.e(TAG, databaseError.getMessage());
+                            }
                         }
                     });
                 }
@@ -191,7 +193,9 @@ public class MainActivity extends IgnisAuthActivity
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        if (databaseError != null) {
+                            Log.e(TAG, databaseError.getMessage());
+                        }
                     }
                 });
 

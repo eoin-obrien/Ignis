@@ -85,7 +85,9 @@ public class NotificationService extends Service {
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
+                            if (databaseError != null) {
+                                Log.e(TAG, databaseError.getMessage());
+                            }
                         }
                     });
                 }

@@ -205,7 +205,9 @@ public class ContactInfoActivity extends IgnisAuthActivity {
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-            Log.e(TAG, databaseError.getMessage());
+            if (databaseError != null) {
+                Log.e(TAG, databaseError.getMessage());
+            }
         }
     }
 
@@ -266,7 +268,9 @@ public class ContactInfoActivity extends IgnisAuthActivity {
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-            Log.e(TAG, databaseError.getMessage());
+            if (databaseError != null) {
+                Log.e(TAG, databaseError.getMessage());
+            }
         }
     }
 }
