@@ -26,6 +26,11 @@
         <item quantity="other">from %d chats</item>
     </plurals>
 
+    <!-- AddContactActivity -->
+    <string name="error_no_email">No email address entered</string>
+    <string name="error_invalid_email">You can\'t add yourself as a contact</string>
+    <string name="error_own_email">No user exists with this email address</string>
+
     <!-- Navigation drawer -->
     <string name="nav_new_message">New Message</string>
     <string name="nav_new_group">New Group</string>

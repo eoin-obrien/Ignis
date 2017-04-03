@@ -66,7 +66,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         mUsersRef = mDatabase.getReference(USERS_REF);
         mConnectedRef = mDatabase.getReference(CONNECTED_REF);
 
-        mSensorService = new NotificationService(getApplicationContext());
+        mSensorService = new NotificationService();
         mServiceIntent = new Intent(getApplicationContext(), mSensorService.getClass());
         if (!isServiceRunning(mSensorService.getClass())) {
             startService(mServiceIntent);
