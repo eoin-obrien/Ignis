@@ -13,7 +13,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,7 +28,6 @@ import io.videtur.ignis.ChatActivity;
 import io.videtur.ignis.MainActivity;
 import io.videtur.ignis.R;
 
-import static io.videtur.ignis.util.Constants.MESSAGES_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.getKeyFromEmail;
 
@@ -43,23 +41,14 @@ public class NotificationService extends Service {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mDatabase;
-    private DatabaseReference mChatsRef;
-    private DatabaseReference mMessagesRef;
     private DatabaseReference mUnreadMessagesRef;
 
     private ValueEventListener mUnreadMessagesListener;
 
-    private Context mContext;
     private Resources mRes;
     private String mUserKey;
 
     private NotificationManager mNotificationManager;
-    private NotificationCompat.Builder mNotifyBuilder;
-
-    public NotificationService(Context applicationContext) {
-        super();
-        mContext = applicationContext;
-    }
 
     public NotificationService() {
     }
@@ -86,7 +75,6 @@ public class NotificationService extends Service {
 
                     mUserKey = getKeyFromEmail(firebaseAuth.getCurrentUser().getEmail());
                     mDatabase = FirebaseDatabase.getInstance();
-                    mMessagesRef = mDatabase.getReference(MESSAGES_REF);
                     mUnreadMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child("unread");
 
                     mUnreadMessagesListener = mUnreadMessagesRef.addValueEventListener(new ValueEventListener() {
@@ -143,7 +131,7 @@ public class NotificationService extends Service {
             } else {
                 pendingIntent = getIntentForMultipleChats();
             }
-            mNotifyBuilder = new NotificationCompat.Builder(this)
+            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(this)
                     .setContentIntent(pendingIntent)
                     .setContentTitle(getResources().getString(R.string.app_name))
                     .setContentText(getNotificationText(chatCount, totalMessageCount))
@@ -162,7 +150,7 @@ public class NotificationService extends Service {
 
     private String getNotificationText(long chatCount, long messageCount) {
         return mRes.getQuantityString(R.plurals.number_of_unread_messages, (int) messageCount, messageCount)
-                + mRes.getQuantityString(R.plurals.number_of_unread_chats, (int) chatCount, chatCount);
+                + " " + mRes.getQuantityString(R.plurals.number_of_unread_chats, (int) chatCount, chatCount);
     }
 
     private PendingIntent getIntentForSingleChat(String chatKey) {

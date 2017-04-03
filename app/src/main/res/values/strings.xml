@@ -22,8 +22,8 @@
         <item quantity="other">%d new messages</item>
     </plurals>
     <plurals name="number_of_unread_chats">
-        <item quantity="one"> from %d chat</item>
-        <item quantity="other"> from %d chats</item>
+        <item quantity="one">from %d chat</item>
+        <item quantity="other">from %d chats</item>
     </plurals>
 
     <!-- Navigation drawer -->
