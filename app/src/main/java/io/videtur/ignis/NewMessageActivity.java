@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
@@ -99,14 +100,15 @@ public class NewMessageActivity extends IgnisAuthActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
+                            // TODO refactor into chat creation utility method
                             Map<String, Object> chatMembers = new HashMap<>();
                             chatMembers.put(key, Boolean.TRUE);
                             chatMembers.put(contactKey, Boolean.TRUE);
 
                             Map<String, Object> updates = new HashMap<>();
                             updates.put("/chats/" + chatKey, new Chat(chatMembers));
-                            updates.put("/users/" + key + "/chats/" + chatKey, Boolean.TRUE);
-                            updates.put("/users/" + contactKey + "/chats/" + chatKey, Boolean.TRUE);
+                            updates.put("/users/" + key + "/chats/" + chatKey, ServerValue.TIMESTAMP);
+                            updates.put("/users/" + contactKey + "/chats/" + chatKey, ServerValue.TIMESTAMP);
 
                             getDatabase().getReference()
                                     .updateChildren(updates)

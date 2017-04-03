@@ -133,9 +133,10 @@ public class ChatActivity extends IgnisAuthActivity {
                 updates.put("/messages/" + mChatKey + "/" + messageKey, message);
                 updates.put("/chats/" + mChatKey + "/lastMessage", messageKey);
                 for (String memberKey : mChat.getMembers().keySet()) {
+                    // Update chat activity timestamp
+                    updates.put("/users/" + memberKey + "/chats/" + mChatKey, ServerValue.TIMESTAMP);
                     // Don't track read receipts for the sender
                     if (!memberKey.equals(mUserKey)) {
-                        updates.put("/users/" + memberKey + "/chats/" + mChatKey, ServerValue.TIMESTAMP);
                         updates.put("/users/" + memberKey + "/unread/" + mChatKey + "/" + messageKey, Boolean.TRUE);
                     }
                 }

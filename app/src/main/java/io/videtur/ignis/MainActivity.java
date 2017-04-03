@@ -56,6 +56,8 @@ public class MainActivity extends IgnisAuthActivity
     private ListView mChatList;
 
     private FirebaseIndexListAdapter<Chat> mChatsAdapter;
+    private DatabaseReference mChatsRef;
+    private DatabaseReference mUserChatsRef;
     private DatabaseReference mMessagesRef;
     private DatabaseReference mUsersRef;
     private String mUserKey;
@@ -119,12 +121,12 @@ public class MainActivity extends IgnisAuthActivity
         mNavUserNameTextView.setText(user.getName());
         mNavUserEmailTextView.setText(user.getEmail());
 
-        DatabaseReference mUserChatsRef = getDatabase().getReference("/users/" + key + "/chats");
+        mUserChatsRef = getDatabase().getReference("/users/" + key + "/chats");
         mMessagesRef = getDatabase().getReference(MESSAGES_REF);
-        DatabaseReference mChatsRef = getDatabase().getReference(CHATS_REF);
+        mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
         mChatsAdapter = new FirebaseIndexListAdapter<Chat>(this, Chat.class, R.layout.item_chat,
-                mUserChatsRef, mChatsRef) {
+                mUserChatsRef.orderByValue(), mChatsRef) {
             @Override
             protected void populateView(View v, Chat chat, final int position) {
                 final ImageView chatImage = (ImageView) v.findViewById(R.id.chat_image);
