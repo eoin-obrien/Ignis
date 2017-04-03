@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseIndexListAdapter;
+import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,6 +45,7 @@ public class MainActivity extends IgnisAuthActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
+    private static final int REQUEST_INVITE = 100;
 
     private BroadcastReceiver mConnectionReceiver;
 
@@ -54,8 +56,6 @@ public class MainActivity extends IgnisAuthActivity
     private ListView mChatList;
 
     private FirebaseIndexListAdapter<Chat> mChatsAdapter;
-    private DatabaseReference mChatsRef;
-    private DatabaseReference mUserChatsRef;
     private DatabaseReference mMessagesRef;
     private DatabaseReference mUsersRef;
     private String mUserKey;
@@ -119,9 +119,9 @@ public class MainActivity extends IgnisAuthActivity
         mNavUserNameTextView.setText(user.getName());
         mNavUserEmailTextView.setText(user.getEmail());
 
-        mUserChatsRef = getDatabase().getReference("/users/" + key + "/chats");
+        DatabaseReference mUserChatsRef = getDatabase().getReference("/users/" + key + "/chats");
         mMessagesRef = getDatabase().getReference(MESSAGES_REF);
-        mChatsRef = getDatabase().getReference(CHATS_REF);
+        DatabaseReference mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
         mChatsAdapter = new FirebaseIndexListAdapter<Chat>(this, Chat.class, R.layout.item_chat,
                 mUserChatsRef, mChatsRef) {
@@ -231,15 +231,11 @@ public class MainActivity extends IgnisAuthActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_new_message) {
-            // start NewMessageActivity
-            Intent intent = new Intent(this, NewMessageActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_new_group) {
-            // TODO start NewGroupActivity
+            startActivity(new Intent(this, NewMessageActivity.class));
         } else if (id == R.id.nav_contacts) {
             startActivity(new Intent(this, ContactsActivity.class));
         } else if (id == R.id.nav_invite_friends) {
-            // TODO start Firebase invites intent
+            startInvitesActivity();
         } else if (id == R.id.nav_log_out) {
             signOut();
         }
@@ -247,6 +243,33 @@ public class MainActivity extends IgnisAuthActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void startInvitesActivity() {
+        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
+                .setMessage(getString(R.string.invitation_message))
+                .setCallToActionText(getString(R.string.invitation_cta))
+                .build();
+        startActivityForResult(intent, REQUEST_INVITE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
+
+        if (requestCode == REQUEST_INVITE) {
+            if (resultCode == RESULT_OK) {
+                // Get the invitation IDs of all sent messages
+                String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
+                for (String id : ids) {
+                    Log.d(TAG, "onActivityResult: sent invitation " + id);
+                }
+            } else {
+                // Sending failed or it was canceled, show failure message to the user
+                showToast(R.string.invitation_failed);
+            }
+        }
     }
 
     private void registerConnectionReceiver() {

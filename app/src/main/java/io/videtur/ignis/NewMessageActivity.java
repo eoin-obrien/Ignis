@@ -143,7 +143,6 @@ public class NewMessageActivity extends IgnisAuthActivity {
         mSearchTextWatcher = new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // TODO decide on minimum search term length
                 String searchTerm = mSearchEditText.getText().toString().toLowerCase();
                 setContactsAdapter(searchTerm);
             }
