@@ -70,6 +70,6 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="64dp"
         android:layout_gravity="bottom|end"
-        android:src="@drawable/ic_keyboard_arrow_down" />
+        app:srcCompat="@drawable/ic_keyboard_arrow_down" />
 
 </android.support.design.widget.CoordinatorLayout>
