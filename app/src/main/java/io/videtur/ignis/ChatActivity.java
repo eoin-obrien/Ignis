@@ -37,8 +37,7 @@ import static io.videtur.ignis.util.Constants.MESSAGE_TO_USER;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.FirebaseUtil.markMessageAsRead;
 import static io.videtur.ignis.util.FirebaseUtil.sendMessage;
-import static io.videtur.ignis.util.Util.formatLastOnlineTime;
-import static io.videtur.ignis.util.Util.formatMessageTimestamp;
+import static io.videtur.ignis.util.Util.formatTimestamp;
 
 public class ChatActivity extends IgnisAuthActivity {
 
@@ -205,7 +204,10 @@ public class ChatActivity extends IgnisAuthActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User contact = dataSnapshot.getValue(User.class);
                         mToolbarPrimaryText.setText(contact.getName());
-                        mToolbarSecondaryText.setText(formatLastOnlineTime(contact.getLastOnline()));
+                        mToolbarSecondaryText.setText(formatTimestamp(contact.getLastOnline(),
+                                getResources().getString(R.string.last_online_timestamp_same_day),
+                                getResources().getString(R.string.last_online_timestamp_same_week),
+                                getResources().getString(R.string.last_online_timestamp_default)));
                         Glide.with(ChatActivity.this)
                                 .load(contact.getPhotoUrl())
                                 .into(mToolbarImage);
@@ -253,7 +255,10 @@ public class ChatActivity extends IgnisAuthActivity {
             protected void populateViewHolder(MessageHolder viewHolder, Message model, int position) {
                 String messageKey = this.getRef(position).getKey();
                 viewHolder.mMessageText.setText(model.getText());
-                viewHolder.mTimestampText.setText(formatMessageTimestamp(model.getTimestampLong()));
+                viewHolder.mTimestampText.setText(formatTimestamp(model.getTimestampLong(),
+                        getResources().getString(R.string.message_timestamp_same_day),
+                        getResources().getString(R.string.message_timestamp_same_week),
+                        getResources().getString(R.string.message_timestamp_default)));
 
                 if (viewHolder.mReadReceipt != null) {
                     if (model.getReadReceipts() != null) {
@@ -291,9 +296,9 @@ public class ChatActivity extends IgnisAuthActivity {
     }
 
     private static class MessageHolder extends RecyclerView.ViewHolder {
-        private TextView mMessageText;
-        private TextView mTimestampText;
-        private ImageView mReadReceipt;
+        private final TextView mMessageText;
+        private final TextView mTimestampText;
+        private final ImageView mReadReceipt;
 
         MessageHolder(View itemView) {
             super(itemView);

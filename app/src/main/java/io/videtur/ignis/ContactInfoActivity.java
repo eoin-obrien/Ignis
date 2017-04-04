@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -19,17 +17,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
@@ -37,8 +29,7 @@ import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.dpToPx;
-import static io.videtur.ignis.util.Util.formatLastOnlineTime;
-import static io.videtur.ignis.util.Util.generateChatKey;
+import static io.videtur.ignis.util.Util.formatTimestamp;
 
 public class ContactInfoActivity extends IgnisAuthActivity {
 
@@ -198,7 +189,10 @@ public class ContactInfoActivity extends IgnisAuthActivity {
                 if (contact.getConnections() != null && contact.getConnections().size() > 0) {
                     mContactStatus.setText(R.string.online);
                 } else {
-                    mContactStatus.setText(formatLastOnlineTime(contact.getLastOnline()));
+                    mContactStatus.setText(formatTimestamp(contact.getLastOnline(),
+                            getResources().getString(R.string.last_online_timestamp_same_day),
+                            getResources().getString(R.string.last_online_timestamp_same_week),
+                            getResources().getString(R.string.last_online_timestamp_default)));
                 }
             }
         }

@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,7 +51,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
     private NotificationService mSensorService;
     private Intent mServiceIntent;
 
-    public FirebaseDatabase getDatabase() {
+    protected FirebaseDatabase getDatabase() {
         return mDatabase;
     }
 
@@ -146,11 +145,11 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         }
     }
 
-    public void onUserDataChange(String key, User user) {
+    protected void onUserDataChange(String key, User user) {
         Log.d(TAG, "onUserDataChange");
     }
 
-    public void signOut() {
+    protected void signOut() {
         // Remove state listeners
         mAuth.removeAuthStateListener(this);
         removeUserStateListener();
@@ -171,7 +170,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
                 });
     }
 
-    public void showToast(int stringResource) {
+    protected void showToast(int stringResource) {
         Toast.makeText(this, stringResource, Toast.LENGTH_SHORT).show();
     }
 

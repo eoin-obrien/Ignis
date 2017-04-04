@@ -41,7 +41,7 @@ import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
 import static io.videtur.ignis.util.Constants.REQUEST_INVITE;
 import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.formatChatTimestamp;
+import static io.videtur.ignis.util.Util.formatTimestamp;
 
 public class MainActivity extends IgnisAuthActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -157,7 +157,11 @@ public class MainActivity extends IgnisAuthActivity
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Message message = dataSnapshot.getValue(Message.class);
                             chatLastMessage.setText(message.getText());
-                            chatTimestamp.setText(formatChatTimestamp(message.getTimestampLong()));
+                            chatTimestamp.setText(formatTimestamp(message.getTimestampLong(),
+                                    getResources().getString(R.string.chat_timestamp_same_day),
+                                    getResources().getString(R.string.chat_timestamp_same_week),
+                                    getResources().getString(R.string.chat_timestamp_default)));
+
                             if (mUserKey.equals(message.getSenderKey())) {
                                 if (message.getReadReceipts() != null) {
                                     chatReadReceipt.setImageResource(R.drawable.ic_message_seen);

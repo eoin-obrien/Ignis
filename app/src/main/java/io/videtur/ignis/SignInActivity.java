@@ -75,7 +75,7 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-    public void showToast(int stringResource) {
+    private void showToast(int stringResource) {
         Toast.makeText(this, stringResource, Toast.LENGTH_SHORT).show();
     }
 

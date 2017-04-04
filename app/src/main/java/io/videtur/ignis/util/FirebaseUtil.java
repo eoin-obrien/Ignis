@@ -1,7 +1,5 @@
 package io.videtur.ignis.util;
 
-import android.provider.ContactsContract;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -37,8 +35,8 @@ public class FirebaseUtil {
         return database.getReference().updateChildren(updates);
     }
 
-    public static Task<Void> sendMessage(FirebaseDatabase database, Message message, Chat chat,
-                                         String chatKey, String userKey) {
+    public static void sendMessage(FirebaseDatabase database, Message message, Chat chat,
+                                   String chatKey, String userKey) {
         DatabaseReference messagesRef = database.getReference(MESSAGES_REF).child(chatKey);
         String messageKey = messagesRef.push().getKey();
 
@@ -54,14 +52,14 @@ public class FirebaseUtil {
                 updates.put("/" + USERS_REF + "/" + memberKey + "/" + UNREAD_CHILD + "/" + chatKey + "/" + messageKey, Boolean.TRUE);
             }
         }
-        return database.getReference().updateChildren(updates);
+        database.getReference().updateChildren(updates);
     }
 
-    public static Task<Void> markMessageAsRead(FirebaseDatabase database, String userKey, String chatKey, String messageKey) {
+    public static void markMessageAsRead(FirebaseDatabase database, String userKey, String chatKey, String messageKey) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("/" + USERS_REF + "/" + userKey + "/" + UNREAD_CHILD + "/" + chatKey + "/" + messageKey, null);
         updates.put("/" + MESSAGES_REF + "/" + chatKey + "/" + messageKey + "/" + READ_RECEIPTS_CHILD + "/" + userKey, ServerValue.TIMESTAMP);
-        return database.getReference().updateChildren(updates);
+        database.getReference().updateChildren(updates);
     }
 
 }
