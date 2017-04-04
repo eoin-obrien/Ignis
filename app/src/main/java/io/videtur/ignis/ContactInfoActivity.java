@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -117,6 +118,14 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         mContactKey = getIntent().getStringExtra(ARG_CONTACT_KEY);
         mContactRef = getDatabase().getReference(USERS_REF).child(mContactKey);
         mChatsRef = getDatabase().getReference(CHATS_REF);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startEmailActivity();
+            }
+        });
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
