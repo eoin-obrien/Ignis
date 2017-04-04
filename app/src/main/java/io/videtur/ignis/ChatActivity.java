@@ -22,11 +22,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.Message;
@@ -39,6 +35,8 @@ import static io.videtur.ignis.util.Constants.MESSAGES_REF;
 import static io.videtur.ignis.util.Constants.MESSAGE_FROM_USER;
 import static io.videtur.ignis.util.Constants.MESSAGE_TO_USER;
 import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.util.FirebaseUtil.markMessageAsRead;
+import static io.videtur.ignis.util.FirebaseUtil.sendMessage;
 import static io.videtur.ignis.util.Util.formatLastOnlineTime;
 import static io.videtur.ignis.util.Util.formatMessageTimestamp;
 
@@ -53,7 +51,6 @@ public class ChatActivity extends IgnisAuthActivity {
     private String mUserName;
     private String mUserProfilePhotoUrl;
     private Chat mChat;
-    private User mUser;
 
     private DatabaseReference mChatRef;
     private DatabaseReference mMessagesRef;
@@ -126,21 +123,7 @@ public class ChatActivity extends IgnisAuthActivity {
             public void onClick(View v) {
                 final String messageText = mMessageEditText.getText().toString();
                 Message message = new Message(messageText, mUserKey, mUserName, mUserProfilePhotoUrl);
-                String messageKey = mMessagesRef.push().getKey();
-
-                // set last message details
-                Map<String, Object> updates = new HashMap<>();
-                updates.put("/messages/" + mChatKey + "/" + messageKey, message);
-                updates.put("/chats/" + mChatKey + "/lastMessage", messageKey);
-                for (String memberKey : mChat.getMembers().keySet()) {
-                    // Update chat activity timestamp
-                    updates.put("/users/" + memberKey + "/chats/" + mChatKey, ServerValue.TIMESTAMP);
-                    // Don't track read receipts for the sender
-                    if (!memberKey.equals(mUserKey)) {
-                        updates.put("/users/" + memberKey + "/unread/" + mChatKey + "/" + messageKey, Boolean.TRUE);
-                    }
-                }
-                getDatabase().getReference().updateChildren(updates);
+                sendMessage(getDatabase(), message, mChat, mChatKey, mUserKey);
                 mMessageEditText.setText("");
             }
         });
@@ -166,15 +149,15 @@ public class ChatActivity extends IgnisAuthActivity {
             }
         });
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // getSupportActionBar().setTitle("");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     @Override
     public void onUserDataChange(String key, User user) {
         super.onUserDataChange(key, user);
 
-        mUser = user;
         mUserKey = key;
         mUserName = user.getName();
         mUserProfilePhotoUrl = user.getPhotoUrl();
@@ -285,14 +268,8 @@ public class ChatActivity extends IgnisAuthActivity {
                 // Mark message as read
                 if (!model.getSenderKey().equals(mUserKey) && (model.getReadReceipts() == null
                         || !model.getReadReceipts().containsKey(mUserKey))) {
-                    Map<String, Object> updates = new HashMap<>();
-                    updates.put("/users/" + mUserKey + "/unread/" + mChatKey + "/" + messageKey, null);
-                    updates.put("/messages/" + mChatKey + "/" + messageKey + "/readReceipts/" + mUserKey, ServerValue.TIMESTAMP);
-                    getDatabase().getReference().updateChildren(updates);
+                    markMessageAsRead(getDatabase(), mUserKey, mChatKey, messageKey);
                 }
-                /*Glide.with(ChatActivity.this)
-                        .load(model.getSenderPhotoUrl())
-                        .into(viewHolder.mSenderProfileImage);*/
             }
         };
         mChatAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -318,9 +295,8 @@ public class ChatActivity extends IgnisAuthActivity {
         private TextView mTimestampText;
         private ImageView mReadReceipt;
 
-        public MessageHolder(View itemView) {
+        MessageHolder(View itemView) {
             super(itemView);
-
             mMessageText = (TextView) itemView.findViewById(R.id.message_text);
             mTimestampText = (TextView) itemView.findViewById(R.id.timestamp_text);
             mReadReceipt = (ImageView) itemView.findViewById(R.id.chat_read_receipt);
