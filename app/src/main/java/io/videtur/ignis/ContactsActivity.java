@@ -27,16 +27,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
 import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.util.FirebaseUtil.createChat;
 import static io.videtur.ignis.util.Util.formatLastOnlineTime;
 import static io.videtur.ignis.util.Util.generateChatKey;
 
@@ -64,6 +61,7 @@ public class ContactsActivity extends IgnisAuthActivity {
         mSearchEditText = (EditText) findViewById(R.id.contacts_search_edit_text);
         mContactsList = (ListView) findViewById(R.id.contacts_list);
 
+        // TODO change to loading spinner
         mContactsList.setEmptyView(findViewById(R.id.empty_search));
 
         // Setup database references
@@ -109,7 +107,7 @@ public class ContactsActivity extends IgnisAuthActivity {
         super.onUserDataChange(key, user);
 
         mContactsKeyRef = mContactsRef.child(key);
-        setContactsAdapter();
+        setContactsAdapter("");
         mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -120,17 +118,7 @@ public class ContactsActivity extends IgnisAuthActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                            Map<String, Object> chatMembers = new HashMap<>();
-                            chatMembers.put(key, Boolean.TRUE);
-                            chatMembers.put(contactKey, Boolean.TRUE);
-
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
-                            updates.put("/users/" + key + "/chats/" + chatKey, Boolean.TRUE);
-                            updates.put("/users/" + contactKey + "/chats/" + chatKey, Boolean.TRUE);
-
-                            getDatabase().getReference()
-                                    .updateChildren(updates)
+                            createChat(getDatabase(), chatKey, key, contactKey)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -186,10 +174,6 @@ public class ContactsActivity extends IgnisAuthActivity {
         finish();
     }
 
-    private void setContactsAdapter() {
-        setContactsAdapter("");
-    }
-
     private void setContactsAdapter(String searchTerm) {
         Query keyRef = mContactsKeyRef.orderByValue().startAt(searchTerm).endAt(searchTerm + "~");
         mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, keyRef, mUsersRef) {
@@ -201,7 +185,7 @@ public class ContactsActivity extends IgnisAuthActivity {
                 Glide.with(ContactsActivity.this).load(model.getPhotoUrl()).fitCenter().into(contactPhoto);
                 contactName.setText(model.getName());
                 if (model.getConnections() != null && model.getConnections().size() > 0) {
-                    contactStatus.setText("online");
+                    contactStatus.setText(getResources().getString(R.string.user_online));
                 } else {
                     contactStatus.setText(formatLastOnlineTime(model.getLastOnline()));
                 }

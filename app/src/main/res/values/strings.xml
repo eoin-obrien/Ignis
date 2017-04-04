@@ -59,4 +59,5 @@
     <string name="invitation_message">Join me and chat with Ignis!</string>
     <string name="invitation_cta">Install</string>
     <string name="invitation_failed">Failed to send invitation</string>
+    <string name="user_online">online</string>
 </resources>

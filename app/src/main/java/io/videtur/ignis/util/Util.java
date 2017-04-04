@@ -4,14 +4,24 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import io.videtur.ignis.model.Chat;
 
 import static io.videtur.ignis.util.Constants.CHAT_KEY_DELIMITER;
 

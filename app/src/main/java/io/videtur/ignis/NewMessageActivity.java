@@ -22,19 +22,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
 import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.util.FirebaseUtil.createChat;
 import static io.videtur.ignis.util.Util.formatLastOnlineTime;
 import static io.videtur.ignis.util.Util.generateChatKey;
 
@@ -100,18 +96,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                            // TODO refactor into chat creation utility method
-                            Map<String, Object> chatMembers = new HashMap<>();
-                            chatMembers.put(key, Boolean.TRUE);
-                            chatMembers.put(contactKey, Boolean.TRUE);
-
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
-                            updates.put("/users/" + key + "/chats/" + chatKey, ServerValue.TIMESTAMP);
-                            updates.put("/users/" + contactKey + "/chats/" + chatKey, ServerValue.TIMESTAMP);
-
-                            getDatabase().getReference()
-                                    .updateChildren(updates)
+                            createChat(getDatabase(), chatKey, key, contactKey)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -182,7 +167,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
                 Glide.with(NewMessageActivity.this).load(model.getPhotoUrl()).fitCenter().into(contactPhoto);
                 contactName.setText(model.getName());
                 if (model.getConnections() != null && model.getConnections().size() > 0) {
-                    contactStatus.setText("online");
+                    contactStatus.setText(getResources().getString(R.string.user_online));
                 } else {
                     contactStatus.setText(formatLastOnlineTime(model.getLastOnline()));
                 }

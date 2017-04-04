@@ -38,6 +38,7 @@ import io.videtur.ignis.util.IgnisAuthActivity;
 
 import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
+import static io.videtur.ignis.util.Constants.REQUEST_INVITE;
 import static io.videtur.ignis.util.Constants.USERS_REF;
 import static io.videtur.ignis.util.Util.formatChatTimestamp;
 
@@ -45,7 +46,6 @@ public class MainActivity extends IgnisAuthActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_INVITE = 100;
 
     private BroadcastReceiver mConnectionReceiver;
 
@@ -211,6 +211,11 @@ public class MainActivity extends IgnisAuthActivity
                         startActivity(intent);
                     }
                 });
+            }
+
+            @Override
+            public Chat getItem(int position) {
+                return super.getItem(getCount() - (position + 1));
             }
         };
         mChatList.setAdapter(mChatsAdapter);
