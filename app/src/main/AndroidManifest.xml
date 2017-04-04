@@ -42,7 +42,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.videtur.ignis.ui.ContactsActivity" />
+                android:value="io.videtur.ignis.ui.ChatActivity" />
         </activity>
         <activity
             android:name=".ui.AddContactActivity"
@@ -79,7 +79,7 @@
         <receiver
             android:name="io.videtur.ignis.core.ServiceRestartBroadcastReceiver"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:label="RestartNotificationServiceWhenStopped">
             <intent-filter>
                 <action android:name="io.videtur.ignis.service.RestartNotificationService"/>
