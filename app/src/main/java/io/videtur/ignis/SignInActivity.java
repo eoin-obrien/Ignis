@@ -17,10 +17,11 @@ import com.google.android.gms.common.SignInButton;
 import java.util.Collections;
 import java.util.List;
 
+import static io.videtur.ignis.util.Constants.REQUEST_SIGN_IN;
+
 public class SignInActivity extends AppCompatActivity {
 
     private static final String TAG = "SignInActivity";
-    private static final int RC_SIGN_IN = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +48,13 @@ public class SignInActivity extends AppCompatActivity {
                         .setProviders(providers)
                         .setIsSmartLockEnabled(false)
                         .build(),
-                RC_SIGN_IN);
+                REQUEST_SIGN_IN);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == REQUEST_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == ResultCodes.OK) {
                 // Authentication successful, launch MainActivity

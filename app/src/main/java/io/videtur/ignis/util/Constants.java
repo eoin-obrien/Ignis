@@ -19,6 +19,7 @@ public final class Constants {
     public static final int MESSAGE_TO_USER = 1;
 
     public static final int REQUEST_INVITE = 100;
+    public static final int REQUEST_SIGN_IN = 101;
 
     public static final String CHAT_KEY_DELIMITER = ",";
 
