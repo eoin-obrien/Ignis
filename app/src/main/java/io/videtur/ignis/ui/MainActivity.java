@@ -1,4 +1,4 @@
-package io.videtur.ignis;
+package io.videtur.ignis.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,10 +31,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Map;
 
+import io.videtur.ignis.R;
 import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.util.IgnisAuthActivity;
+import io.videtur.ignis.core.IgnisAuthActivity;
 
 import static io.videtur.ignis.util.Constants.CHATS_CHILD;
 import static io.videtur.ignis.util.Constants.CHATS_REF;

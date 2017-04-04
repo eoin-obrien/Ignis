@@ -1,4 +1,4 @@
-package io.videtur.ignis;
+package io.videtur.ignis.core;
 
 import android.app.Application;
 

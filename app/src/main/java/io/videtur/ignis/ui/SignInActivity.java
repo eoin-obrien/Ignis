@@ -1,4 +1,4 @@
-package io.videtur.ignis;
+package io.videtur.ignis.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import com.google.android.gms.common.SignInButton;
 
 import java.util.Collections;
 import java.util.List;
+
+import io.videtur.ignis.R;
 
 import static io.videtur.ignis.util.Constants.REQUEST_SIGN_IN;
 

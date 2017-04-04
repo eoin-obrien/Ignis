@@ -1,4 +1,4 @@
-package io.videtur.ignis.service;
+package io.videtur.ignis.core;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -24,8 +24,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.videtur.ignis.ChatActivity;
-import io.videtur.ignis.MainActivity;
+import io.videtur.ignis.ui.ChatActivity;
+import io.videtur.ignis.ui.MainActivity;
 import io.videtur.ignis.R;
 
 import static io.videtur.ignis.util.Constants.DELIVERY_RECEIPTS_CHILD;

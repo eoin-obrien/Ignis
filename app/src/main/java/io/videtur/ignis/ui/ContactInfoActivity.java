@@ -1,4 +1,4 @@
-package io.videtur.ignis;
+package io.videtur.ignis.ui;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -22,8 +22,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import io.videtur.ignis.R;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.util.IgnisAuthActivity;
+import io.videtur.ignis.core.IgnisAuthActivity;
 
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
