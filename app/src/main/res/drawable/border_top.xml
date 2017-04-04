@@ -9,8 +9,7 @@
         </shape>
     </item>
 
-    <item
-        android:top="1dp">
+    <item android:top="1dp">
         <shape android:shape="rectangle">
             <stroke
                 android:width="2dp"

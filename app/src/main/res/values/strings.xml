@@ -36,12 +36,10 @@
     <string name="invitation_title">Ignis Invite</string>
     <string name="invitation_message">Join me and chat with Ignis!</string>
     <string name="invitation_cta">Install</string>
-    <string name="invitation_failed">Failed to send invitation</string>
 
     <!-- Contacts -->
     <string name="action_new_contact">New Contact</string>
     <string name="contacts_search_hint">Search…</string>
-    <string name="contacts_list_empty">No results</string>
     <string name="title_activity_contacts">Contacts</string>
     <string name="title_activity_add_contact">Add Contact</string>
     <string name="email">Email</string>
@@ -77,4 +75,5 @@
     <string name="last_online_timestamp_same_day">\'last seen at\' HH:mm</string>
     <string name="last_online_timestamp_same_week">\'last seen\' EEE \'at\' HH:mm</string>
     <string name="last_online_timestamp_default">\'last seen\' dd.MM.yy \'at\' HH:mm</string>
+    <string name="send">SEND</string>
 </resources>

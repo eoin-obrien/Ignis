@@ -228,7 +228,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mLayoutManager.setStackFromEnd(true);
 
         mChatAdapter = new FirebaseRecyclerAdapter<Message, MessageHolder>(Message.class,
-                R.layout.list_item_message, MessageHolder.class, mMessagesRef) {
+                R.layout.item_message, MessageHolder.class, mMessagesRef) {
             @Override
             public MessageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 if (viewType == MESSAGE_FROM_USER) {

@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group
-        android:id="@+id/nav_group_messaging"
-        android:checkableBehavior="none">
+    <group android:checkableBehavior="none">
         <item
             android:id="@+id/nav_new_message"
             android:icon="@drawable/ic_message"
             android:title="@string/nav_new_message" />
     </group>
 
-    <group
-        android:id="@+id/nav_group_user"
-        android:checkableBehavior="none">
+    <group android:checkableBehavior="none">
         <item
             android:id="@+id/nav_contacts"
             android:icon="@drawable/ic_contacts"

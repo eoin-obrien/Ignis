@@ -178,7 +178,7 @@ public class ContactsActivity extends IgnisAuthActivity {
 
     private void setContactsAdapter(String searchTerm) {
         Query keyRef = mContactsKeyRef.orderByValue().startAt(searchTerm).endAt(searchTerm + "~");
-        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, keyRef, mUsersRef) {
+        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.item_contact, keyRef, mUsersRef) {
             @Override
             protected void populateView(View v, User model, int position) {
                 ImageView contactPhoto = (ImageView) v.findViewById(R.id.contact_profile_image);
