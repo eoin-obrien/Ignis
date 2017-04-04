@@ -1,12 +1,10 @@
-package io.videtur.ignis;
+package io.videtur.ignis.ui;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,33 +17,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import io.videtur.ignis.model.Chat;
+import io.videtur.ignis.R;
+import io.videtur.ignis.core.IgnisAuthActivity;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.util.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CHAT_REF;
-import static io.videtur.ignis.util.Constants.CONTACTS_REF;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.dpToPx;
-import static io.videtur.ignis.util.Util.formatLastOnlineTime;
-import static io.videtur.ignis.util.Util.generateChatKey;
+import static io.videtur.ignis.core.Constants.CONTACTS_REF;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.Util.formatTimestamp;
 
 public class ContactInfoActivity extends IgnisAuthActivity {
 
-    private static final String TAG = "ContactInfoActivity";
-
     public static final String ARG_CONTACT_KEY = "arg_contact_key";
-
+    private static final String TAG = "ContactInfoActivity";
     private ImageView mContactAvatar;
     private TextView mContactName;
     private TextView mContactStatus;
@@ -57,13 +45,11 @@ public class ContactInfoActivity extends IgnisAuthActivity {
     private DatabaseReference mUserContactsRef;
     private ContactExistsListener mContactExistsListener;
     private DatabaseReference mContactRef;
-    private DatabaseReference mChatsRef;
     private ContactListener mContactListener;
     private String mContactKey;
     private String mUserKey;
     private String mEmail;
     private String mName;
-    private UserIconFactory mUserIconFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +57,6 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         setContentView(R.layout.activity_contact_info);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mUserIconFactory = new UserIconFactory(this);
 
         mContactAvatar = (ImageView) findViewById(R.id.cat_avatar);
         mContactName = (TextView) findViewById(R.id.cat_title);
@@ -125,64 +109,19 @@ public class ContactInfoActivity extends IgnisAuthActivity {
 
         mContactKey = getIntent().getStringExtra(ARG_CONTACT_KEY);
         mContactRef = getDatabase().getReference(USERS_REF).child(mContactKey);
-        mChatsRef = getDatabase().getReference(CHAT_REF);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                // start ChatActivity with contact
-                final String chatKey = generateChatKey(mUserKey, mContactKey);
-                mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            Map<String, Object> chatMembers = new HashMap<>();
-                            chatMembers.put(mUserKey, Boolean.TRUE);
-                            chatMembers.put(mContactKey, Boolean.TRUE);
-
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
-                            updates.put("/users/" + mUserKey + "/chats/" + chatKey, Boolean.TRUE);
-                            updates.put("/users/" + mContactKey + "/chats/" + chatKey, Boolean.TRUE);
-
-                            getDatabase().getReference()
-                                    .updateChildren(updates)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            startChatActivity(chatKey);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            showToast(R.string.chat_creation_failed);
-                                        }
-                                    });
-                        } else {
-                            startChatActivity(chatKey);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+            public void onClick(View v) {
+                startEmailActivity();
             }
         });
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-    }
-
-    private void startChatActivity(String chatKey) {
-        Intent intent = new Intent(ContactInfoActivity.this, ChatActivity.class);
-        intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
-        startActivity(intent);
-        finish();
     }
 
     @Override
@@ -217,40 +156,6 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         if (mContactExistsListener != null) {
             mUserContactsRef.removeEventListener(mContactExistsListener);
             mContactExistsListener = null;
-        }
-    }
-
-    private class ContactListener implements ValueEventListener {
-        private static final String TAG = "ContactListener";
-
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            if (dataSnapshot.exists()) {
-                final User contact = dataSnapshot.getValue(User.class);
-                int iconSize = (int) dpToPx(ContactInfoActivity.this, 40);
-
-                mName = contact.getName();
-                mEmail = contact.getEmail();
-                Drawable userIconPlaceholder = mUserIconFactory.getDefaultAvatar(contact.getName(),
-                        contact.getEmail(), iconSize, iconSize);
-                Glide.with(ContactInfoActivity.this)
-                        .load(contact.getPhotoUrl())
-                        .placeholder(userIconPlaceholder)
-                        .crossFade()
-                        .into(mContactAvatar);
-                mContactName.setText(mName);
-                mContactEmail.setText(mEmail);
-                if (contact.getConnections() != null && contact.getConnections().size() > 0) {
-                    mContactStatus.setText(R.string.online);
-                } else {
-                    mContactStatus.setText(formatLastOnlineTime(contact.getLastOnline()));
-                }
-            }
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-            Log.e(TAG, databaseError.getMessage());
         }
     }
 
@@ -295,6 +200,40 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         }
     }
 
+    private class ContactListener implements ValueEventListener {
+        private static final String TAG = "ContactListener";
+
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.exists()) {
+                final User contact = dataSnapshot.getValue(User.class);
+
+                mName = contact.getName();
+                mEmail = contact.getEmail();
+                Glide.with(ContactInfoActivity.this)
+                        .load(contact.getPhotoUrl())
+                        .into(mContactAvatar);
+                mContactName.setText(mName);
+                mContactEmail.setText(mEmail);
+                if (contact.getConnections() != null && contact.getConnections().size() > 0) {
+                    mContactStatus.setText(R.string.online);
+                } else {
+                    mContactStatus.setText(formatTimestamp(contact.getLastOnline(),
+                            getResources().getString(R.string.last_online_timestamp_same_day),
+                            getResources().getString(R.string.last_online_timestamp_same_week),
+                            getResources().getString(R.string.last_online_timestamp_default)));
+                }
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            if (databaseError != null) {
+                Log.e(TAG, databaseError.getMessage());
+            }
+        }
+    }
+
     private class ContactExistsListener implements ValueEventListener {
         private static final String TAG = "ContactExistsListener";
 
@@ -311,7 +250,9 @@ public class ContactInfoActivity extends IgnisAuthActivity {
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-            Log.e(TAG, databaseError.getMessage());
+            if (databaseError != null) {
+                Log.e(TAG, databaseError.getMessage());
+            }
         }
     }
 }

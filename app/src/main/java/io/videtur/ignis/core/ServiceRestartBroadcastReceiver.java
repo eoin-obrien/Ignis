@@ -1,4 +1,4 @@
-package io.videtur.ignis.service;
+package io.videtur.ignis.core;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

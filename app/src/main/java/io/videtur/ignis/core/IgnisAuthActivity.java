@@ -1,4 +1,4 @@
-package io.videtur.ignis.util;
+package io.videtur.ignis.core;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -24,14 +24,13 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import io.videtur.ignis.R;
-import io.videtur.ignis.SignInActivity;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.service.NotificationService;
+import io.videtur.ignis.ui.SignInActivity;
 
-import static io.videtur.ignis.util.Constants.CONNECTED_REF;
-import static io.videtur.ignis.util.Constants.CONNECTIONS_CHILD;
-import static io.videtur.ignis.util.Constants.LAST_ONLINE_CHILD;
-import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.core.Constants.CONNECTED_REF;
+import static io.videtur.ignis.core.Constants.CONNECTIONS_CHILD;
+import static io.videtur.ignis.core.Constants.LAST_ONLINE_CHILD;
+import static io.videtur.ignis.core.Constants.USERS_REF;
 
 public abstract class IgnisAuthActivity extends AppCompatActivity
         implements AuthStateListener {
@@ -51,7 +50,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
     private NotificationService mSensorService;
     private Intent mServiceIntent;
 
-    public FirebaseDatabase getDatabase() {
+    protected FirebaseDatabase getDatabase() {
         return mDatabase;
     }
 
@@ -65,7 +64,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         mUsersRef = mDatabase.getReference(USERS_REF);
         mConnectedRef = mDatabase.getReference(CONNECTED_REF);
 
-        mSensorService = new NotificationService(getApplicationContext());
+        mSensorService = new NotificationService();
         mServiceIntent = new Intent(getApplicationContext(), mSensorService.getClass());
         if (!isServiceRunning(mSensorService.getClass())) {
             startService(mServiceIntent);
@@ -132,7 +131,9 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.e(TAG, databaseError.getMessage());
+                    if (databaseError != null) {
+                        Log.e(TAG, databaseError.getMessage());
+                    }
                 }
             });
         } else {
@@ -143,11 +144,11 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         }
     }
 
-    public void onUserDataChange(String key, User user) {
+    protected void onUserDataChange(String key, User user) {
         Log.d(TAG, "onUserDataChange");
     }
 
-    public void signOut() {
+    protected void signOut() {
         // Remove state listeners
         mAuth.removeAuthStateListener(this);
         removeUserStateListener();
@@ -168,7 +169,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
                 });
     }
 
-    public void showToast(int stringResource) {
+    protected void showToast(int stringResource) {
         Toast.makeText(this, stringResource, Toast.LENGTH_SHORT).show();
     }
 
@@ -230,7 +231,9 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, databaseError.getMessage());
+                if (databaseError != null) {
+                    Log.e(TAG, databaseError.getMessage());
+                }
             }
         });
     }

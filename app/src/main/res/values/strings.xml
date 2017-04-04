@@ -3,18 +3,11 @@
     <string name="toolbar_title_disconnected">Waiting for network…</string>
 
     <!-- Authentication -->
+    <string name="title_activity_sign_in">Ignis</string>
     <string name="sign_in_no_network">No internet connection</string>
     <string name="sign_in_unknown_error">Sign-in failed</string>
     <string name="sign_out_successful">Sign-out successful</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="action_settings">Settings</string>
-    <string name="action_new_contact">New Contact</string>
-
-    <string name="contacts_search_hint">Search…</string>
-    <string name="contacts_list_empty">No results</string>
 
     <!-- Notifications -->
     <plurals name="number_of_unread_messages">
@@ -22,17 +15,31 @@
         <item quantity="other">%d new messages</item>
     </plurals>
     <plurals name="number_of_unread_chats">
-        <item quantity="one"> from %d chat</item>
-        <item quantity="other"> from %d chats</item>
+        <item quantity="one">from %d chat</item>
+        <item quantity="other">from %d chats</item>
     </plurals>
 
+    <!-- AddContactActivity -->
+    <string name="error_no_email">No email address entered</string>
+    <string name="error_invalid_email">You can\'t add yourself as a contact</string>
+    <string name="error_own_email">No user exists with this email address</string>
+
     <!-- Navigation drawer -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_new_message">New Message</string>
-    <string name="nav_new_group">New Group</string>
     <string name="nav_contacts">Contacts</string>
     <string name="nav_invite_friends">Invite Friends</string>
     <string name="nav_log_out">Log Out</string>
-    <string name="title_activity_sign_in">Ignis</string>
+
+    <!-- Invitations -->
+    <string name="invitation_title">Ignis Invite</string>
+    <string name="invitation_message">Join me and chat with Ignis!</string>
+    <string name="invitation_cta">Install</string>
+
+    <!-- Contacts -->
+    <string name="action_new_contact">New Contact</string>
+    <string name="contacts_search_hint">Search…</string>
     <string name="title_activity_contacts">Contacts</string>
     <string name="title_activity_add_contact">Add Contact</string>
     <string name="email">Email</string>
@@ -43,11 +50,30 @@
     <string name="contact_info_delete_contact">Delete contact</string>
     <string name="contact_deleted">Contact deleted</string>
     <string name="contact_added">Contact added</string>
-    <string name="online">online</string>
-    <string name="action_done">Done</string>
     <string name="contact_email_hint">Enter contact email</string>
     <string name="contact_already_added">Already a contact</string>
+    <string name="online">online</string>
+    <string name="action_done">Done</string>
+
+    <!-- Chats -->
     <string name="title_activity_new_message">New Message</string>
     <string name="chat_creation_failed">Failed to create chat</string>
     <string name="chat_message_hint">Message</string>
+    <string name="user_online">online</string>
+
+    <!-- Message timestamp formats -->
+    <string name="message_timestamp_same_day">HH:mm</string>
+    <string name="message_timestamp_same_week">EEE HH:mm</string>
+    <string name="message_timestamp_default">dd.MM.yy HH:mm</string>
+
+    <!-- Chat timestamp formats -->
+    <string name="chat_timestamp_same_day">HH:mm</string>
+    <string name="chat_timestamp_same_week">EEE</string>
+    <string name="chat_timestamp_default">MMM d</string>
+
+    <!-- Last online timestamp formats -->
+    <string name="last_online_timestamp_same_day">\'last seen at\' HH:mm</string>
+    <string name="last_online_timestamp_same_week">\'last seen\' EEE \'at\' HH:mm</string>
+    <string name="last_online_timestamp_default">\'last seen\' dd.MM.yy \'at\' HH:mm</string>
+    <string name="send">SEND</string>
 </resources>

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="io.videtur.ignis.ChatActivity"
+    tools:context="io.videtur.ignis.ui.ChatActivity"
     tools:showIn="@layout/activity_chat">
 
     <android.support.v7.widget.RecyclerView
@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/new_message_layout"
         android:layout_alignParentTop="true"
-        android:background="@color/chat_background"/>
+        android:background="@color/chat_background" />
 
     <LinearLayout
         android:id="@+id/new_message_layout"
@@ -37,7 +37,7 @@
             android:layout_weight="1"
             android:inputType="textCapSentences|textMultiLine"
             android:hint="@string/chat_message_hint"
-            android:background="@null"/>
+            android:background="@null" />
 
         <Button
             android:padding="8dp"
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="SEND"
+            android:text="@string/send"
             android:enabled="false" />
 
     </LinearLayout>

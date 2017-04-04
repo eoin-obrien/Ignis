@@ -1,11 +1,13 @@
-package io.videtur.ignis;
+package io.videtur.ignis.ui;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -23,18 +25,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import io.videtur.ignis.model.Chat;
+import io.videtur.ignis.R;
+import io.videtur.ignis.core.IgnisAuthActivity;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.util.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CHAT_REF;
-import static io.videtur.ignis.util.Constants.CONTACTS_REF;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.formatLastOnlineTime;
-import static io.videtur.ignis.util.Util.generateChatKey;
+import static io.videtur.ignis.core.Constants.CHATS_REF;
+import static io.videtur.ignis.core.Constants.CONTACTS_REF;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.FirebaseUtil.createChat;
+import static io.videtur.ignis.core.Util.formatTimestamp;
+import static io.videtur.ignis.core.Util.generateChatKey;
 
 public class NewMessageActivity extends IgnisAuthActivity {
 
@@ -49,6 +49,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
 
     private EditText mSearchEditText;
     private ListView mContactsList;
+    private Resources mResources;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +61,12 @@ public class NewMessageActivity extends IgnisAuthActivity {
         mSearchEditText = (EditText) findViewById(R.id.contacts_search_edit_text);
         mContactsList = (ListView) findViewById(R.id.contacts_list);
 
-        mContactsList.setEmptyView(findViewById(R.id.empty_search));
-
         // Setup database references
         mContactsRef = getDatabase().getReference(CONTACTS_REF);
-        mChatsRef = getDatabase().getReference(CHAT_REF);
+        mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
+
+        mResources = getResources();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -98,17 +99,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                            Map<String, Object> chatMembers = new HashMap<>();
-                            chatMembers.put(key, Boolean.TRUE);
-                            chatMembers.put(contactKey, Boolean.TRUE);
-
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("/chats/" + chatKey, new Chat(chatMembers));
-                            updates.put("/users/" + key + "/chats/" + chatKey, Boolean.TRUE);
-                            updates.put("/users/" + contactKey + "/chats/" + chatKey, Boolean.TRUE);
-
-                            getDatabase().getReference()
-                                    .updateChildren(updates)
+                            createChat(getDatabase(), chatKey, key, contactKey)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -128,7 +119,9 @@ public class NewMessageActivity extends IgnisAuthActivity {
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        if (databaseError != null) {
+                            Log.e(TAG, databaseError.getMessage());
+                        }
                     }
                 });
             }
@@ -140,7 +133,6 @@ public class NewMessageActivity extends IgnisAuthActivity {
         mSearchTextWatcher = new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // TODO decide on minimum search term length
                 String searchTerm = mSearchEditText.getText().toString().toLowerCase();
                 setContactsAdapter(searchTerm);
             }
@@ -169,7 +161,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
 
     private void setContactsAdapter(String searchTerm) {
         Query keyRef = mContactsKeyRef.orderByValue().startAt(searchTerm).endAt(searchTerm + "~");
-        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, keyRef, mUsersRef) {
+        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.item_contact, keyRef, mUsersRef) {
             @Override
             protected void populateView(View v, User model, int position) {
                 ImageView contactPhoto = (ImageView) v.findViewById(R.id.contact_profile_image);
@@ -178,9 +170,12 @@ public class NewMessageActivity extends IgnisAuthActivity {
                 Glide.with(NewMessageActivity.this).load(model.getPhotoUrl()).fitCenter().into(contactPhoto);
                 contactName.setText(model.getName());
                 if (model.getConnections() != null && model.getConnections().size() > 0) {
-                    contactStatus.setText("online");
+                    contactStatus.setText(getResources().getString(R.string.user_online));
                 } else {
-                    contactStatus.setText(formatLastOnlineTime(model.getLastOnline()));
+                    contactStatus.setText(formatTimestamp(model.getLastOnline(),
+                            mResources.getString(R.string.last_online_timestamp_same_day),
+                            mResources.getString(R.string.last_online_timestamp_same_week),
+                            mResources.getString(R.string.last_online_timestamp_default)));
                 }
             }
 

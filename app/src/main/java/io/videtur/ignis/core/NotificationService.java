@@ -1,4 +1,4 @@
-package io.videtur.ignis.service;
+package io.videtur.ignis.core;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -24,41 +24,34 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.videtur.ignis.ChatActivity;
-import io.videtur.ignis.MainActivity;
 import io.videtur.ignis.R;
+import io.videtur.ignis.ui.ChatActivity;
+import io.videtur.ignis.ui.MainActivity;
 
-import static io.videtur.ignis.util.Constants.MESSAGES_REF;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.getKeyFromEmail;
+import static io.videtur.ignis.core.Constants.DELIVERY_RECEIPTS_CHILD;
+import static io.videtur.ignis.core.Constants.LED_COLOR;
+import static io.videtur.ignis.core.Constants.MESSAGES_REF;
+import static io.videtur.ignis.core.Constants.NOTIFICATION_ID;
+import static io.videtur.ignis.core.Constants.RESTART_BROADCAST;
+import static io.videtur.ignis.core.Constants.UNREAD_CHILD;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.Util.getKeyFromEmail;
 
 public class NotificationService extends Service {
 
     private static final String TAG = "NotificationService";
-    private static final String RESTART_BROADCAST = "io.videtur.ignis.service.RestartNotificationService";
-    private static final int NOTIFICATION_ID = 1;
-    private static final int LED_COLOR = 0xff2196f3;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mDatabase;
-    private DatabaseReference mChatsRef;
-    private DatabaseReference mMessagesRef;
     private DatabaseReference mUnreadMessagesRef;
 
     private ValueEventListener mUnreadMessagesListener;
 
-    private Context mContext;
     private Resources mRes;
     private String mUserKey;
 
     private NotificationManager mNotificationManager;
-    private NotificationCompat.Builder mNotifyBuilder;
-
-    public NotificationService(Context applicationContext) {
-        super();
-        mContext = applicationContext;
-    }
 
     public NotificationService() {
     }
@@ -85,7 +78,6 @@ public class NotificationService extends Service {
 
                     mUserKey = getKeyFromEmail(firebaseAuth.getCurrentUser().getEmail());
                     mDatabase = FirebaseDatabase.getInstance();
-                    mMessagesRef = mDatabase.getReference(MESSAGES_REF);
                     mUnreadMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child("unread");
 
                     mUnreadMessagesListener = mUnreadMessagesRef.addValueEventListener(new ValueEventListener() {
@@ -96,7 +88,9 @@ public class NotificationService extends Service {
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
+                            if (databaseError != null) {
+                                Log.e(TAG, databaseError.getMessage());
+                            }
                         }
                     });
                 }
@@ -127,10 +121,10 @@ public class NotificationService extends Service {
             for (DataSnapshot messageSnapshot : chatSnapshot.getChildren()) {
                 Boolean pendingDelivery = messageSnapshot.getValue(Boolean.class);
                 if (pendingDelivery) {
-                    updates.put("/users/" + mUserKey + "/unread/" + chatSnapshot.getKey()
+                    updates.put("/" + USERS_REF + "/" + mUserKey + "/" + UNREAD_CHILD + "/" + chatSnapshot.getKey()
                             + "/" + messageSnapshot.getKey(), Boolean.FALSE);
-                    updates.put("/messages/" + chatSnapshot.getKey() + "/" + messageSnapshot.getKey()
-                            + "/deliveryReceipts/" + mUserKey, ServerValue.TIMESTAMP);
+                    updates.put("/" + MESSAGES_REF + "/" + chatSnapshot.getKey() + "/" + messageSnapshot.getKey()
+                            + "/" + DELIVERY_RECEIPTS_CHILD + "/" + mUserKey, ServerValue.TIMESTAMP);
                 }
             }
         }
@@ -142,7 +136,7 @@ public class NotificationService extends Service {
             } else {
                 pendingIntent = getIntentForMultipleChats();
             }
-            mNotifyBuilder = new NotificationCompat.Builder(this)
+            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(this)
                     .setContentIntent(pendingIntent)
                     .setContentTitle(getResources().getString(R.string.app_name))
                     .setContentText(getNotificationText(chatCount, totalMessageCount))
@@ -161,7 +155,7 @@ public class NotificationService extends Service {
 
     private String getNotificationText(long chatCount, long messageCount) {
         return mRes.getQuantityString(R.plurals.number_of_unread_messages, (int) messageCount, messageCount)
-                + mRes.getQuantityString(R.plurals.number_of_unread_chats, (int) chatCount, chatCount);
+                + " " + mRes.getQuantityString(R.plurals.number_of_unread_chats, (int) chatCount, chatCount);
     }
 
     private PendingIntent getIntentForSingleChat(String chatKey) {

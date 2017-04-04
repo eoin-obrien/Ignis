@@ -1,10 +1,13 @@
-package io.videtur.ignis;
+package io.videtur.ignis.ui;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,24 +20,30 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseIndexListAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
+import io.videtur.ignis.R;
+import io.videtur.ignis.core.IgnisAuthActivity;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.util.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CONTACTS_REF;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.formatLastOnlineTime;
+import static io.videtur.ignis.core.Constants.CHATS_REF;
+import static io.videtur.ignis.core.Constants.CONTACTS_REF;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.FirebaseUtil.createChat;
+import static io.videtur.ignis.core.Util.formatTimestamp;
+import static io.videtur.ignis.core.Util.generateChatKey;
 
 public class ContactsActivity extends IgnisAuthActivity {
 
     private static final String TAG = "ContactsActivity";
 
+    private DatabaseReference mChatsRef;
     private DatabaseReference mContactsRef;
     private DatabaseReference mContactsKeyRef;
     private DatabaseReference mUsersRef;
@@ -43,6 +52,7 @@ public class ContactsActivity extends IgnisAuthActivity {
 
     private EditText mSearchEditText;
     private ListView mContactsList;
+    private Resources mResources;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +64,12 @@ public class ContactsActivity extends IgnisAuthActivity {
         mSearchEditText = (EditText) findViewById(R.id.contacts_search_edit_text);
         mContactsList = (ListView) findViewById(R.id.contacts_list);
 
-        mContactsList.setEmptyView(findViewById(R.id.empty_search));
-
         // Setup database references
+        mChatsRef = getDatabase().getReference(CHATS_REF);
         mContactsRef = getDatabase().getReference(CONTACTS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
+
+        mResources = getResources();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -98,14 +109,42 @@ public class ContactsActivity extends IgnisAuthActivity {
         super.onUserDataChange(key, user);
 
         mContactsKeyRef = mContactsRef.child(key);
-        setContactsAdapter();
+        setContactsAdapter("");
         mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String contactKey = mContactsAdapter.getRef(position).getKey();
-                Intent intent = new Intent(ContactsActivity.this, ContactInfoActivity.class);
-                intent.putExtra(ContactInfoActivity.ARG_CONTACT_KEY, contactKey);
-                startActivity(intent);
+                // generate chat if it doesn't exist
+                final String contactKey = mContactsAdapter.getRef(position).getKey();
+                final String chatKey = generateChatKey(key, contactKey);
+                mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            createChat(getDatabase(), chatKey, key, contactKey)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            startChatActivity(chatKey);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            showToast(R.string.chat_creation_failed);
+                                        }
+                                    });
+                        } else {
+                            startChatActivity(chatKey);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        if (databaseError != null) {
+                            Log.e(TAG, databaseError.getMessage());
+                        }
+                    }
+                });
             }
         });
 
@@ -115,7 +154,6 @@ public class ContactsActivity extends IgnisAuthActivity {
         mSearchTextWatcher = new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // TODO decide on minimum search term length
                 String searchTerm = mSearchEditText.getText().toString().toLowerCase();
                 setContactsAdapter(searchTerm);
             }
@@ -131,13 +169,16 @@ public class ContactsActivity extends IgnisAuthActivity {
         mSearchEditText.addTextChangedListener(mSearchTextWatcher);
     }
 
-    private void setContactsAdapter() {
-        setContactsAdapter("");
+    private void startChatActivity(String chatKey) {
+        Intent intent = new Intent(ContactsActivity.this, ChatActivity.class);
+        intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
+        startActivity(intent);
+        finish();
     }
 
     private void setContactsAdapter(String searchTerm) {
         Query keyRef = mContactsKeyRef.orderByValue().startAt(searchTerm).endAt(searchTerm + "~");
-        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.list_item_contact, keyRef, mUsersRef) {
+        mContactsAdapter = new FirebaseIndexListAdapter<User>(this, User.class, R.layout.item_contact, keyRef, mUsersRef) {
             @Override
             protected void populateView(View v, User model, int position) {
                 ImageView contactPhoto = (ImageView) v.findViewById(R.id.contact_profile_image);
@@ -146,9 +187,12 @@ public class ContactsActivity extends IgnisAuthActivity {
                 Glide.with(ContactsActivity.this).load(model.getPhotoUrl()).fitCenter().into(contactPhoto);
                 contactName.setText(model.getName());
                 if (model.getConnections() != null && model.getConnections().size() > 0) {
-                    contactStatus.setText("online");
+                    contactStatus.setText(getResources().getString(R.string.user_online));
                 } else {
-                    contactStatus.setText(formatLastOnlineTime(model.getLastOnline()));
+                    contactStatus.setText(formatTimestamp(model.getLastOnline(),
+                            mResources.getString(R.string.last_online_timestamp_same_day),
+                            mResources.getString(R.string.last_online_timestamp_same_week),
+                            mResources.getString(R.string.last_online_timestamp_default)));
                 }
             }
 

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="io.videtur.ignis.ContactInfoActivity"
+    tools:context="io.videtur.ignis.ui.ContactInfoActivity"
     tools:showIn="@layout/activity_contact_info">
 
     <LinearLayout
@@ -29,7 +29,7 @@
                 android:layout_gravity="center"
                 android:padding="16dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_email"
+                app:srcCompat="@drawable/ic_email"
                 android:tint="@color/material_grey" />
 
             <LinearLayout

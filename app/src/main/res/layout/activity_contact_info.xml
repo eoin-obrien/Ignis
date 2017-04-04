@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="io.videtur.ignis.ContactInfoActivity">
+    tools:context="io.videtur.ignis.ui.ContactInfoActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
@@ -30,7 +30,6 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
             <com.sloydev.collapsingavatartoolbar.CollapsingAvatarToolbar
-                android:id="@+id/stuff_container"
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize">
 
@@ -45,6 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -75,7 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_message"
+        app:srcCompat="@drawable/ic_email"
         android:tint="@color/icons"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end" />

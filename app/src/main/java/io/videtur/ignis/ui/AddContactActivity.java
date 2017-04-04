@@ -1,45 +1,32 @@
-package io.videtur.ignis;
+package io.videtur.ignis.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.zip.Inflater;
-
+import io.videtur.ignis.R;
+import io.videtur.ignis.core.IgnisAuthActivity;
+import io.videtur.ignis.core.Util;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.util.IgnisAuthActivity;
-import io.videtur.ignis.util.Util;
 
-import static io.videtur.ignis.util.Constants.CONTACTS_REF;
-import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.core.Constants.CONTACTS_REF;
+import static io.videtur.ignis.core.Constants.USERS_REF;
 
 public class AddContactActivity extends IgnisAuthActivity {
-
-    // TODO listen for keyboard done and finish activity
 
     private static final String TAG = "AddContactActivity";
 
@@ -47,7 +34,7 @@ public class AddContactActivity extends IgnisAuthActivity {
     private EditText mEditText;
 
     private DatabaseReference mUserContactsRef;
-    private FirebaseAuth mAuth;
+    private User mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +58,6 @@ public class AddContactActivity extends IgnisAuthActivity {
             }
         });
 
-        mAuth = FirebaseAuth.getInstance();
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -81,6 +66,7 @@ public class AddContactActivity extends IgnisAuthActivity {
     @Override
     public void onUserDataChange(String key, User user) {
         super.onUserDataChange(key, user);
+        mUser = user;
         mUserContactsRef = getDatabase().getReference(CONTACTS_REF).child(key);
     }
 
@@ -103,12 +89,11 @@ public class AddContactActivity extends IgnisAuthActivity {
     }
 
     private void addContact() {
-        // TODO check if user is already a contact
         String contactEmail = mEditText.getText().toString();
         if (contactEmail.isEmpty()) {
-            showContactError("No email address entered");
-        } else if (contactEmail.equals(mAuth.getCurrentUser().getEmail())) {
-            showContactError("You can't add yourself as a contact");
+            showContactError(R.string.error_no_email);
+        } else if (contactEmail.equals(mUser.getEmail())) {
+            showContactError(R.string.error_own_email);
         } else {
             String contactKey = Util.getKeyFromEmail(contactEmail);
             DatabaseReference contactUserRef = getDatabase().getReference(USERS_REF).child(contactKey);
@@ -118,7 +103,7 @@ public class AddContactActivity extends IgnisAuthActivity {
                     if (dataSnapshot.exists()) {
                         addUserToContacts(dataSnapshot.getValue(User.class));
                     } else {
-                        showContactError("No user exists with this email address");
+                        showContactError(R.string.error_invalid_email);
                     }
                 }
 
@@ -152,7 +137,7 @@ public class AddContactActivity extends IgnisAuthActivity {
                         }
                     });
                 } else {
-                    showToast(R.string.contact_already_added);
+                    showContactError(R.string.contact_already_added);
                     startContactsActivity();
                 }
             }
@@ -172,8 +157,7 @@ public class AddContactActivity extends IgnisAuthActivity {
         finish();
     }
 
-    // TODO abstract error messages to strings.xml
-    private void showContactError(String error) {
-        mTextInputLayout.setError(error);
+    private void showContactError(int error) {
+        mTextInputLayout.setError(getResources().getString(error));
     }
 }
