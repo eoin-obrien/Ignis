@@ -265,16 +265,11 @@ public class MainActivity extends IgnisAuthActivity
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
 
-        if (requestCode == REQUEST_INVITE) {
-            if (resultCode == RESULT_OK) {
-                // Get the invitation IDs of all sent messages
-                String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
-                for (String id : ids) {
-                    Log.d(TAG, "onActivityResult: sent invitation " + id);
-                }
-            } else {
-                // Sending failed or it was canceled, show failure message to the user
-                showToast(R.string.invitation_failed);
+        if (requestCode == REQUEST_INVITE && resultCode == RESULT_OK) {
+            // Get the invitation IDs of all sent messages
+            String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
+            for (String id : ids) {
+                Log.d(TAG, "onActivityResult: sent invitation " + id);
             }
         }
     }
