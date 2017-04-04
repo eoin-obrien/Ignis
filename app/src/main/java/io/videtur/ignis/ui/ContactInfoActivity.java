@@ -26,9 +26,9 @@ import io.videtur.ignis.R;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.core.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CONTACTS_REF;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.formatTimestamp;
+import static io.videtur.ignis.core.Constants.CONTACTS_REF;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.Util.formatTimestamp;
 
 public class ContactInfoActivity extends IgnisAuthActivity {
 

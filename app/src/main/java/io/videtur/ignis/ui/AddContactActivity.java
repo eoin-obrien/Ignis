@@ -21,10 +21,10 @@ import com.google.firebase.database.ValueEventListener;
 import io.videtur.ignis.R;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.core.IgnisAuthActivity;
-import io.videtur.ignis.util.Util;
+import io.videtur.ignis.core.Util;
 
-import static io.videtur.ignis.util.Constants.CONTACTS_REF;
-import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.core.Constants.CONTACTS_REF;
+import static io.videtur.ignis.core.Constants.USERS_REF;
 
 public class AddContactActivity extends IgnisAuthActivity {
 

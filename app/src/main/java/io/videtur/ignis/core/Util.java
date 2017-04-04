@@ -1,17 +1,13 @@
-package io.videtur.ignis.util;
+package io.videtur.ignis.core;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.text.format.DateFormat;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
-
-import static io.videtur.ignis.util.Constants.CHAT_KEY_DELIMITER;
 
 public final class Util {
 
@@ -28,9 +24,9 @@ public final class Util {
     public static String generateChatKey(String userKey1, String userKey2) {
         String key;
         if (userKey1.compareTo(userKey2) < 0) {
-            key = userKey1 + CHAT_KEY_DELIMITER + userKey2;
+            key = userKey1 + Constants.CHAT_KEY_DELIMITER + userKey2;
         } else {
-            key = userKey2 + CHAT_KEY_DELIMITER + userKey1;
+            key = userKey2 + Constants.CHAT_KEY_DELIMITER + userKey1;
         }
         return key;
     }

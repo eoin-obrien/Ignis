@@ -28,14 +28,14 @@ import io.videtur.ignis.ui.ChatActivity;
 import io.videtur.ignis.ui.MainActivity;
 import io.videtur.ignis.R;
 
-import static io.videtur.ignis.util.Constants.DELIVERY_RECEIPTS_CHILD;
-import static io.videtur.ignis.util.Constants.LED_COLOR;
-import static io.videtur.ignis.util.Constants.MESSAGES_REF;
-import static io.videtur.ignis.util.Constants.NOTIFICATION_ID;
-import static io.videtur.ignis.util.Constants.RESTART_BROADCAST;
-import static io.videtur.ignis.util.Constants.UNREAD_CHILD;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.getKeyFromEmail;
+import static io.videtur.ignis.core.Constants.DELIVERY_RECEIPTS_CHILD;
+import static io.videtur.ignis.core.Constants.LED_COLOR;
+import static io.videtur.ignis.core.Constants.MESSAGES_REF;
+import static io.videtur.ignis.core.Constants.NOTIFICATION_ID;
+import static io.videtur.ignis.core.Constants.RESTART_BROADCAST;
+import static io.videtur.ignis.core.Constants.UNREAD_CHILD;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.Util.getKeyFromEmail;
 
 public class NotificationService extends Service {
 

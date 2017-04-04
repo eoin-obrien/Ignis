@@ -31,14 +31,14 @@ import io.videtur.ignis.model.User;
 import io.videtur.ignis.core.IgnisAuthActivity;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
-import static io.videtur.ignis.util.Constants.CHATS_REF;
-import static io.videtur.ignis.util.Constants.MESSAGES_REF;
-import static io.videtur.ignis.util.Constants.MESSAGE_FROM_USER;
-import static io.videtur.ignis.util.Constants.MESSAGE_TO_USER;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.FirebaseUtil.markMessageAsRead;
-import static io.videtur.ignis.util.FirebaseUtil.sendMessage;
-import static io.videtur.ignis.util.Util.formatTimestamp;
+import static io.videtur.ignis.core.Constants.CHATS_REF;
+import static io.videtur.ignis.core.Constants.MESSAGES_REF;
+import static io.videtur.ignis.core.Constants.MESSAGE_FROM_USER;
+import static io.videtur.ignis.core.Constants.MESSAGE_TO_USER;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.FirebaseUtil.markMessageAsRead;
+import static io.videtur.ignis.core.FirebaseUtil.sendMessage;
+import static io.videtur.ignis.core.Util.formatTimestamp;
 
 public class ChatActivity extends IgnisAuthActivity {
 

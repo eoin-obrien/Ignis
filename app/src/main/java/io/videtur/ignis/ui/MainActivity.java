@@ -37,12 +37,12 @@ import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.core.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CHATS_CHILD;
-import static io.videtur.ignis.util.Constants.CHATS_REF;
-import static io.videtur.ignis.util.Constants.MESSAGES_REF;
-import static io.videtur.ignis.util.Constants.REQUEST_INVITE;
-import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.formatTimestamp;
+import static io.videtur.ignis.core.Constants.CHATS_CHILD;
+import static io.videtur.ignis.core.Constants.CHATS_REF;
+import static io.videtur.ignis.core.Constants.MESSAGES_REF;
+import static io.videtur.ignis.core.Constants.REQUEST_INVITE;
+import static io.videtur.ignis.core.Constants.USERS_REF;
+import static io.videtur.ignis.core.Util.formatTimestamp;
 
 public class MainActivity extends IgnisAuthActivity
         implements NavigationView.OnNavigationItemSelectedListener {

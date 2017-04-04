@@ -1,4 +1,4 @@
-package io.videtur.ignis.util;
+package io.videtur.ignis.core;
 
 public final class Constants {
 

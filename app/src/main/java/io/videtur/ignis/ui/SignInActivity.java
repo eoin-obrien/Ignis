@@ -19,7 +19,7 @@ import java.util.List;
 
 import io.videtur.ignis.R;
 
-import static io.videtur.ignis.util.Constants.REQUEST_SIGN_IN;
+import static io.videtur.ignis.core.Constants.REQUEST_SIGN_IN;
 
 public class SignInActivity extends AppCompatActivity {
 

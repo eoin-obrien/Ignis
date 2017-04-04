@@ -26,12 +26,11 @@ import com.google.firebase.database.ValueEventListener;
 import io.videtur.ignis.R;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.ui.SignInActivity;
-import io.videtur.ignis.util.Util;
 
-import static io.videtur.ignis.util.Constants.CONNECTED_REF;
-import static io.videtur.ignis.util.Constants.CONNECTIONS_CHILD;
-import static io.videtur.ignis.util.Constants.LAST_ONLINE_CHILD;
-import static io.videtur.ignis.util.Constants.USERS_REF;
+import static io.videtur.ignis.core.Constants.CONNECTED_REF;
+import static io.videtur.ignis.core.Constants.CONNECTIONS_CHILD;
+import static io.videtur.ignis.core.Constants.LAST_ONLINE_CHILD;
+import static io.videtur.ignis.core.Constants.USERS_REF;
 
 public abstract class IgnisAuthActivity extends AppCompatActivity
         implements AuthStateListener {
