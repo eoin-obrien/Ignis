@@ -23,8 +23,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import io.videtur.ignis.R;
-import io.videtur.ignis.model.User;
 import io.videtur.ignis.core.IgnisAuthActivity;
+import io.videtur.ignis.model.User;
 
 import static io.videtur.ignis.core.Constants.CONTACTS_REF;
 import static io.videtur.ignis.core.Constants.USERS_REF;
@@ -32,10 +32,8 @@ import static io.videtur.ignis.core.Util.formatTimestamp;
 
 public class ContactInfoActivity extends IgnisAuthActivity {
 
-    private static final String TAG = "ContactInfoActivity";
-
     public static final String ARG_CONTACT_KEY = "arg_contact_key";
-
+    private static final String TAG = "ContactInfoActivity";
     private ImageView mContactAvatar;
     private TextView mContactName;
     private TextView mContactStatus;
@@ -161,40 +159,6 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         }
     }
 
-    private class ContactListener implements ValueEventListener {
-        private static final String TAG = "ContactListener";
-
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            if (dataSnapshot.exists()) {
-                final User contact = dataSnapshot.getValue(User.class);
-
-                mName = contact.getName();
-                mEmail = contact.getEmail();
-                Glide.with(ContactInfoActivity.this)
-                        .load(contact.getPhotoUrl())
-                        .into(mContactAvatar);
-                mContactName.setText(mName);
-                mContactEmail.setText(mEmail);
-                if (contact.getConnections() != null && contact.getConnections().size() > 0) {
-                    mContactStatus.setText(R.string.online);
-                } else {
-                    mContactStatus.setText(formatTimestamp(contact.getLastOnline(),
-                            getResources().getString(R.string.last_online_timestamp_same_day),
-                            getResources().getString(R.string.last_online_timestamp_same_week),
-                            getResources().getString(R.string.last_online_timestamp_default)));
-                }
-            }
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-            if (databaseError != null) {
-                Log.e(TAG, databaseError.getMessage());
-            }
-        }
-    }
-
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -233,6 +197,40 @@ public class ContactInfoActivity extends IgnisAuthActivity {
             ClipData clipData = ClipData.newPlainText("email", mEmail);
             clipboardManager.setPrimaryClip(clipData);
             showToast(R.string.copied_to_clipboard);
+        }
+    }
+
+    private class ContactListener implements ValueEventListener {
+        private static final String TAG = "ContactListener";
+
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.exists()) {
+                final User contact = dataSnapshot.getValue(User.class);
+
+                mName = contact.getName();
+                mEmail = contact.getEmail();
+                Glide.with(ContactInfoActivity.this)
+                        .load(contact.getPhotoUrl())
+                        .into(mContactAvatar);
+                mContactName.setText(mName);
+                mContactEmail.setText(mEmail);
+                if (contact.getConnections() != null && contact.getConnections().size() > 0) {
+                    mContactStatus.setText(R.string.online);
+                } else {
+                    mContactStatus.setText(formatTimestamp(contact.getLastOnline(),
+                            getResources().getString(R.string.last_online_timestamp_same_day),
+                            getResources().getString(R.string.last_online_timestamp_same_week),
+                            getResources().getString(R.string.last_online_timestamp_default)));
+                }
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            if (databaseError != null) {
+                Log.e(TAG, databaseError.getMessage());
+            }
         }
     }
 

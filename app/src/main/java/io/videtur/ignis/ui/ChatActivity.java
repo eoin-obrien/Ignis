@@ -25,10 +25,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import io.videtur.ignis.R;
+import io.videtur.ignis.core.IgnisAuthActivity;
 import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.core.IgnisAuthActivity;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static io.videtur.ignis.core.Constants.CHATS_REF;
@@ -42,10 +42,8 @@ import static io.videtur.ignis.core.Util.formatTimestamp;
 
 public class ChatActivity extends IgnisAuthActivity {
 
-    private static final String TAG = "ChatActivity";
-
     public static final String ARG_CHAT_KEY = "arg_chat_key";
-
+    private static final String TAG = "ChatActivity";
     private String mChatKey;
     private String mUserKey;
     private String mUserName;

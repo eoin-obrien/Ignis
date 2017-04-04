@@ -24,9 +24,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.videtur.ignis.R;
 import io.videtur.ignis.ui.ChatActivity;
 import io.videtur.ignis.ui.MainActivity;
-import io.videtur.ignis.R;
 
 import static io.videtur.ignis.core.Constants.DELIVERY_RECEIPTS_CHILD;
 import static io.videtur.ignis.core.Constants.LED_COLOR;

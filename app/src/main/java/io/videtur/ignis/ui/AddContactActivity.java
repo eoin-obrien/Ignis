@@ -19,9 +19,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import io.videtur.ignis.R;
-import io.videtur.ignis.model.User;
 import io.videtur.ignis.core.IgnisAuthActivity;
 import io.videtur.ignis.core.Util;
+import io.videtur.ignis.model.User;
 
 import static io.videtur.ignis.core.Constants.CONTACTS_REF;
 import static io.videtur.ignis.core.Constants.USERS_REF;

@@ -32,10 +32,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Map;
 
 import io.videtur.ignis.R;
+import io.videtur.ignis.core.IgnisAuthActivity;
 import io.videtur.ignis.model.Chat;
 import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
-import io.videtur.ignis.core.IgnisAuthActivity;
 
 import static io.videtur.ignis.core.Constants.CHATS_CHILD;
 import static io.videtur.ignis.core.Constants.CHATS_REF;
