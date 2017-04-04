@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
@@ -26,10 +25,8 @@ import com.google.firebase.database.ValueEventListener;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
-import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.CONTACTS_REF;
 import static io.videtur.ignis.util.Constants.USERS_REF;
-import static io.videtur.ignis.util.Util.dpToPx;
 import static io.videtur.ignis.util.Util.formatTimestamp;
 
 public class ContactInfoActivity extends IgnisAuthActivity {
@@ -49,13 +46,11 @@ public class ContactInfoActivity extends IgnisAuthActivity {
     private DatabaseReference mUserContactsRef;
     private ContactExistsListener mContactExistsListener;
     private DatabaseReference mContactRef;
-    private DatabaseReference mChatsRef;
     private ContactListener mContactListener;
     private String mContactKey;
     private String mUserKey;
     private String mEmail;
     private String mName;
-    private UserIconFactory mUserIconFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +58,6 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         setContentView(R.layout.activity_contact_info);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mUserIconFactory = new UserIconFactory(this);
 
         mContactAvatar = (ImageView) findViewById(R.id.cat_avatar);
         mContactName = (TextView) findViewById(R.id.cat_title);
@@ -117,7 +110,6 @@ public class ContactInfoActivity extends IgnisAuthActivity {
 
         mContactKey = getIntent().getStringExtra(ARG_CONTACT_KEY);
         mContactRef = getDatabase().getReference(USERS_REF).child(mContactKey);
-        mChatsRef = getDatabase().getReference(CHATS_REF);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -131,13 +123,6 @@ public class ContactInfoActivity extends IgnisAuthActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-    }
-
-    private void startChatActivity(String chatKey) {
-        Intent intent = new Intent(ContactInfoActivity.this, ChatActivity.class);
-        intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
-        startActivity(intent);
-        finish();
     }
 
     @Override
@@ -182,16 +167,11 @@ public class ContactInfoActivity extends IgnisAuthActivity {
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (dataSnapshot.exists()) {
                 final User contact = dataSnapshot.getValue(User.class);
-                int iconSize = (int) dpToPx(ContactInfoActivity.this, 40);
 
                 mName = contact.getName();
                 mEmail = contact.getEmail();
-                Drawable userIconPlaceholder = mUserIconFactory.getDefaultAvatar(contact.getName(),
-                        contact.getEmail(), iconSize, iconSize);
                 Glide.with(ContactInfoActivity.this)
                         .load(contact.getPhotoUrl())
-                        .placeholder(userIconPlaceholder)
-                        .crossFade()
                         .into(mContactAvatar);
                 mContactName.setText(mName);
                 mContactEmail.setText(mEmail);

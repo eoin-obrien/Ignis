@@ -126,51 +126,77 @@ public class MainActivity extends IgnisAuthActivity
         mMessagesRef = getDatabase().getReference(MESSAGES_REF);
         mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
-        mChatsAdapter = new FirebaseIndexListAdapter<Chat>(this, Chat.class, R.layout.item_chat,
-                mUserChatsRef.orderByValue(), mChatsRef) {
-            @Override
-            protected void populateView(View v, Chat chat, final int position) {
-                final ImageView chatImage = (ImageView) v.findViewById(R.id.chat_image);
-                final ImageView chatReadReceipt = (ImageView) v.findViewById(R.id.chat_read_receipt);
-                final TextView chatName = (TextView) v.findViewById(R.id.chat_name);
-                final TextView chatLastMessage = (TextView) v.findViewById(R.id.chat_last_message);
-                final TextView chatTimestamp = (TextView) v.findViewById(R.id.chat_timestamp);
-                final TextView chatUnreadCount = (TextView) v.findViewById(R.id.chat_unread_count);
-                final String contactKey;
-                String chatKey = mChatsAdapter.getRef(position).getKey();
+        if (mChatList.getAdapter() == null) {
+            mChatsAdapter = new FirebaseIndexListAdapter<Chat>(this, Chat.class, R.layout.item_chat,
+                    mUserChatsRef.orderByValue(), mChatsRef) {
+                @Override
+                protected void populateView(View v, Chat chat, final int position) {
+                    final ImageView chatImage = (ImageView) v.findViewById(R.id.chat_image);
+                    final ImageView chatReadReceipt = (ImageView) v.findViewById(R.id.chat_read_receipt);
+                    final TextView chatName = (TextView) v.findViewById(R.id.chat_name);
+                    final TextView chatLastMessage = (TextView) v.findViewById(R.id.chat_last_message);
+                    final TextView chatTimestamp = (TextView) v.findViewById(R.id.chat_timestamp);
+                    final TextView chatUnreadCount = (TextView) v.findViewById(R.id.chat_unread_count);
+                    final String contactKey;
+                    String chatKey = mChatsAdapter.getRef(position).getKey();
 
-                if (user.getUnread() != null && user.getUnread().containsKey(chatKey)) {
-                    int unreadCount = ((Map) user.getUnread().get(chatKey)).size();
-                    chatUnreadCount.setText(String.valueOf(unreadCount));
-                    chatUnreadCount.setVisibility(View.VISIBLE);
-                } else {
-                    chatUnreadCount.setVisibility(View.GONE);
-                }
+                    if (user.getUnread() != null && user.getUnread().containsKey(chatKey)) {
+                        int unreadCount = ((Map) user.getUnread().get(chatKey)).size();
+                        chatUnreadCount.setText(String.valueOf(unreadCount));
+                        chatUnreadCount.setVisibility(View.VISIBLE);
+                    } else {
+                        chatUnreadCount.setVisibility(View.GONE);
+                    }
 
-                Log.d(TAG, "lastMessage:" + chat.getLastMessage());
-                if (chat.getLastMessage() != null) {
-                    DatabaseReference lastMessageRef = mMessagesRef
-                            .child(chatKey)
-                            .child(chat.getLastMessage());
-                    lastMessageRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Message message = dataSnapshot.getValue(Message.class);
-                            chatLastMessage.setText(message.getText());
-                            chatTimestamp.setText(formatTimestamp(message.getTimestampLong(),
-                                    getResources().getString(R.string.chat_timestamp_same_day),
-                                    getResources().getString(R.string.chat_timestamp_same_week),
-                                    getResources().getString(R.string.chat_timestamp_default)));
+                    Log.d(TAG, "lastMessage:" + chat.getLastMessage());
+                    if (chat.getLastMessage() != null) {
+                        DatabaseReference lastMessageRef = mMessagesRef
+                                .child(chatKey)
+                                .child(chat.getLastMessage());
+                        lastMessageRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Message message = dataSnapshot.getValue(Message.class);
+                                chatLastMessage.setText(message.getText());
+                                chatTimestamp.setText(formatTimestamp(message.getTimestampLong(),
+                                        getResources().getString(R.string.chat_timestamp_same_day),
+                                        getResources().getString(R.string.chat_timestamp_same_week),
+                                        getResources().getString(R.string.chat_timestamp_default)));
 
-                            if (mUserKey.equals(message.getSenderKey())) {
-                                if (message.getReadReceipts() != null) {
-                                    chatReadReceipt.setImageResource(R.drawable.ic_message_seen);
-                                } else if (message.getDeliveryReceipts() != null) {
-                                    chatReadReceipt.setImageResource(R.drawable.ic_message_delivered);
-                                } else {
-                                    chatReadReceipt.setImageResource(R.drawable.ic_message_pending);
+                                if (mUserKey.equals(message.getSenderKey())) {
+                                    if (message.getReadReceipts() != null) {
+                                        chatReadReceipt.setImageResource(R.drawable.ic_message_seen);
+                                    } else if (message.getDeliveryReceipts() != null) {
+                                        chatReadReceipt.setImageResource(R.drawable.ic_message_delivered);
+                                    } else {
+                                        chatReadReceipt.setImageResource(R.drawable.ic_message_pending);
+                                    }
                                 }
                             }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                if (databaseError != null) {
+                                    Log.e(TAG, databaseError.getMessage());
+                                }
+                            }
+                        });
+                    }
+
+                    // Display other user's name and photo beside the chat
+                    if (!chat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
+                        contactKey = (String) chat.getMembers().keySet().toArray()[0];
+                    } else {
+                        contactKey = (String) chat.getMembers().keySet().toArray()[1];
+                    }
+                    mUsersRef.child(contactKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            User contact = dataSnapshot.getValue(User.class);
+                            chatName.setText(contact.getName());
+                            Glide.with(MainActivity.this)
+                                    .load(contact.getPhotoUrl())
+                                    .into(chatImage);
                         }
 
                         @Override
@@ -180,50 +206,26 @@ public class MainActivity extends IgnisAuthActivity
                             }
                         }
                     });
-                }
 
-                // Display other user's name and photo beside the chat
-                if (!chat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
-                    contactKey = (String) chat.getMembers().keySet().toArray()[0];
-                } else {
-                    contactKey = (String) chat.getMembers().keySet().toArray()[1];
-                }
-                mUsersRef.child(contactKey).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User contact = dataSnapshot.getValue(User.class);
-                        chatName.setText(contact.getName());
-                        Glide.with(MainActivity.this)
-                                .load(contact.getPhotoUrl())
-                                .into(chatImage);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        if (databaseError != null) {
-                            Log.e(TAG, databaseError.getMessage());
+                    // clicking on a list item should start the corresponding chat
+                    v.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String chatKey = mChatsAdapter.getRef(position).getKey();
+                            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                            intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
+                            startActivity(intent);
                         }
-                    }
-                });
+                    });
+                }
 
-                // clicking on a list item should start the corresponding chat
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String chatKey = mChatsAdapter.getRef(position).getKey();
-                        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-                        intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
-                        startActivity(intent);
-                    }
-                });
-            }
-
-            @Override
-            public Chat getItem(int position) {
-                return super.getItem(getCount() - (position + 1));
-            }
-        };
-        mChatList.setAdapter(mChatsAdapter);
+                @Override
+                public Chat getItem(int position) {
+                    return super.getItem(getCount() - (position + 1));
+                }
+            };
+            mChatList.setAdapter(mChatsAdapter);
+        }
     }
 
     @Override
