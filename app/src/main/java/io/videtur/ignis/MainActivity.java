@@ -36,6 +36,7 @@ import io.videtur.ignis.model.Message;
 import io.videtur.ignis.model.User;
 import io.videtur.ignis.util.IgnisAuthActivity;
 
+import static io.videtur.ignis.util.Constants.CHATS_CHILD;
 import static io.videtur.ignis.util.Constants.CHATS_REF;
 import static io.videtur.ignis.util.Constants.MESSAGES_REF;
 import static io.videtur.ignis.util.Constants.REQUEST_INVITE;
@@ -121,7 +122,7 @@ public class MainActivity extends IgnisAuthActivity
         mNavUserNameTextView.setText(user.getName());
         mNavUserEmailTextView.setText(user.getEmail());
 
-        mUserChatsRef = getDatabase().getReference("/users/" + key + "/chats");
+        mUserChatsRef = getDatabase().getReference(USERS_REF).child(key).child(CHATS_CHILD);
         mMessagesRef = getDatabase().getReference(MESSAGES_REF);
         mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
@@ -231,7 +232,6 @@ public class MainActivity extends IgnisAuthActivity
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
