@@ -242,19 +242,25 @@ public class MainActivity extends IgnisAuthActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Message message = dataSnapshot.getValue(Message.class);
-                chatLastMessage.setText(message.getText());
-                chatTimestamp.setText(formatTimestamp(message.getTimestampLong(),
-                        getResources().getString(R.string.chat_timestamp_same_day),
-                        getResources().getString(R.string.chat_timestamp_same_week),
-                        getResources().getString(R.string.chat_timestamp_default)));
+                if (dataSnapshot.exists() && message != null) {
+                    if (message.getText() != null) {
+                        chatLastMessage.setText(message.getText());
+                    }
+                    if (message.getTimestamp() != null) {
+                        chatTimestamp.setText(formatTimestamp(message.getTimestampLong(),
+                                getResources().getString(R.string.chat_timestamp_same_day),
+                                getResources().getString(R.string.chat_timestamp_same_week),
+                                getResources().getString(R.string.chat_timestamp_default)));
+                    }
 
-                if (mUserKey.equals(message.getSenderKey())) {
-                    if (message.getReadReceipts() != null) {
-                        chatReadReceipt.setImageResource(R.drawable.ic_message_seen);
-                    } else if (message.getDeliveryReceipts() != null) {
-                        chatReadReceipt.setImageResource(R.drawable.ic_message_delivered);
-                    } else {
-                        chatReadReceipt.setImageResource(R.drawable.ic_message_pending);
+                    if (mUserKey.equals(message.getSenderKey())) {
+                        if (message.getReadReceipts() != null) {
+                            chatReadReceipt.setImageResource(R.drawable.ic_message_seen);
+                        } else if (message.getDeliveryReceipts() != null) {
+                            chatReadReceipt.setImageResource(R.drawable.ic_message_delivered);
+                        } else {
+                            chatReadReceipt.setImageResource(R.drawable.ic_message_pending);
+                        }
                     }
                 }
             }
