@@ -31,22 +31,22 @@
             android:id="@+id/message_edit_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_marginLeft="4dp"
             android:layout_marginStart="4dp"
-            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:inputType="textCapSentences|textMultiLine"
+            android:background="@null"
             android:hint="@string/chat_message_hint"
-            android:background="@null" />
+            android:inputType="textCapSentences|textMultiLine" />
 
         <Button
-            android:padding="8dp"
             android:id="@+id/send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="@string/send"
-            android:enabled="false" />
+            android:enabled="false"
+            android:padding="8dp"
+            android:text="@string/send" />
 
     </LinearLayout>
 

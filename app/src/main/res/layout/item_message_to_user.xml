@@ -32,9 +32,9 @@
         android:id="@+id/timestamp_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/chat_bubble"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_below="@+id/chat_bubble"
         android:layout_marginLeft="@dimen/chat_bubble_padding"
         android:layout_marginStart="@dimen/chat_bubble_padding"
         android:textAppearance="?android:attr/textAppearanceSmall" />
