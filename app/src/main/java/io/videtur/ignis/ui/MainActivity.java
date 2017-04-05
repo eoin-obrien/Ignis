@@ -29,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import io.videtur.ignis.R;
@@ -41,6 +42,7 @@ import static io.videtur.ignis.core.Constants.CHATS_CHILD;
 import static io.videtur.ignis.core.Constants.CHATS_REF;
 import static io.videtur.ignis.core.Constants.MESSAGES_REF;
 import static io.videtur.ignis.core.Constants.REQUEST_INVITE;
+import static io.videtur.ignis.core.Constants.UNREAD_CHILD;
 import static io.videtur.ignis.core.Constants.USERS_REF;
 import static io.videtur.ignis.core.Util.formatTimestamp;
 
@@ -63,6 +65,10 @@ public class MainActivity extends IgnisAuthActivity
     private DatabaseReference mMessagesRef;
     private DatabaseReference mUsersRef;
     private String mUserKey;
+    private Map<String, DatabaseReference> mLastMessageRefMap;
+    private Map<String, ValueEventListener> mLastMessageListenerMap;
+    private Map<String, DatabaseReference> mUnreadCountRefMap;
+    private Map<String, ValueEventListener> mUnreadCountListenerMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +101,11 @@ public class MainActivity extends IgnisAuthActivity
         mNavUserNameTextView = (TextView) headerView.findViewById(R.id.nav_user_name);
         mNavUserEmailTextView = (TextView) headerView.findViewById(R.id.nav_user_email);
 
+        mLastMessageListenerMap = new HashMap<>();
+        mLastMessageRefMap = new HashMap<>();
+        mUnreadCountListenerMap = new HashMap<>();
+        mUnreadCountRefMap = new HashMap<>();
+
         mChatList = (ListView) findViewById(R.id.chat_list);
     }
 
@@ -115,10 +126,6 @@ public class MainActivity extends IgnisAuthActivity
         super.onUserDataChange(key, user);
 
         mUserKey = key;
-
-        Log.d(TAG, "user.getName:" + user.getName());
-        Log.d(TAG, "user.getEmail:" + user.getEmail());
-        Log.d(TAG, "user.getPhotoUrl:" + user.getPhotoUrl());
         Glide.with(this).load(user.getPhotoUrl()).fitCenter().into(mNavProfileImageView);
         mNavUserNameTextView.setText(user.getName());
         mNavUserEmailTextView.setText(user.getEmail());
@@ -133,58 +140,13 @@ public class MainActivity extends IgnisAuthActivity
                 @Override
                 protected void populateView(View v, Chat chat, final int position) {
                     final ImageView chatImage = (ImageView) v.findViewById(R.id.chat_image);
-                    final ImageView chatReadReceipt = (ImageView) v.findViewById(R.id.chat_read_receipt);
                     final TextView chatName = (TextView) v.findViewById(R.id.chat_name);
-                    final TextView chatLastMessage = (TextView) v.findViewById(R.id.chat_last_message);
-                    final TextView chatTimestamp = (TextView) v.findViewById(R.id.chat_timestamp);
-                    final TextView chatUnreadCount = (TextView) v.findViewById(R.id.chat_unread_count);
-                    final String contactKey;
-                    String chatKey = mChatsAdapter.getRef(position).getKey();
 
-                    if (user.getUnread() != null && user.getUnread().containsKey(chatKey)) {
-                        int unreadCount = ((Map) user.getUnread().get(chatKey)).size();
-                        chatUnreadCount.setText(String.valueOf(unreadCount));
-                        chatUnreadCount.setVisibility(View.VISIBLE);
-                    } else {
-                        chatUnreadCount.setVisibility(View.GONE);
-                    }
-
-                    Log.d(TAG, "lastMessage:" + chat.getLastMessage());
-                    if (chat.getLastMessage() != null) {
-                        DatabaseReference lastMessageRef = mMessagesRef
-                                .child(chatKey)
-                                .child(chat.getLastMessage());
-                        lastMessageRef.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Message message = dataSnapshot.getValue(Message.class);
-                                chatLastMessage.setText(message.getText());
-                                chatTimestamp.setText(formatTimestamp(message.getTimestampLong(),
-                                        getResources().getString(R.string.chat_timestamp_same_day),
-                                        getResources().getString(R.string.chat_timestamp_same_week),
-                                        getResources().getString(R.string.chat_timestamp_default)));
-
-                                if (mUserKey.equals(message.getSenderKey())) {
-                                    if (message.getReadReceipts() != null) {
-                                        chatReadReceipt.setImageResource(R.drawable.ic_message_seen);
-                                    } else if (message.getDeliveryReceipts() != null) {
-                                        chatReadReceipt.setImageResource(R.drawable.ic_message_delivered);
-                                    } else {
-                                        chatReadReceipt.setImageResource(R.drawable.ic_message_pending);
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                if (databaseError != null) {
-                                    Log.e(TAG, databaseError.getMessage());
-                                }
-                            }
-                        });
-                    }
+                    setLastMessageListener(v, chat, position);
+                    setUnreadMessageListener(v, position);
 
                     // Display other user's name and photo beside the chat
+                    final String contactKey;
                     if (!chat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
                         contactKey = (String) chat.getMembers().keySet().toArray()[0];
                     } else {
@@ -227,6 +189,83 @@ public class MainActivity extends IgnisAuthActivity
             };
             mChatList.setAdapter(mChatsAdapter);
         }
+    }
+
+    private void setUnreadMessageListener(View v, final int position) {
+        final TextView chatUnreadCount = (TextView) v.findViewById(R.id.chat_unread_count);
+        final String chatKey = mChatsAdapter.getRef(position).getKey();
+
+        // Remove old listener if it exists
+        if (mUnreadCountRefMap.containsKey(chatKey) && mUnreadCountListenerMap.containsKey(chatKey)) {
+            mUnreadCountRefMap.get(chatKey).removeEventListener(mUnreadCountListenerMap.get(chatKey));
+        }
+
+        // Add new reference and listener to the map
+        DatabaseReference unreadCountRef = mUsersRef.child(mUserKey).child(UNREAD_CHILD).child(chatKey);
+        mUnreadCountRefMap.put(chatKey, unreadCountRef);
+        mUnreadCountListenerMap.put(chatKey, unreadCountRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long unreadCount = dataSnapshot.getChildrenCount();
+                if (unreadCount > 0) {
+                    chatUnreadCount.setText(String.valueOf(unreadCount));
+                    chatUnreadCount.setVisibility(View.VISIBLE);
+                } else {
+                    chatUnreadCount.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if (databaseError != null) {
+                    Log.e(TAG, databaseError.getMessage());
+                }
+            }
+        }));
+    }
+
+    private void setLastMessageListener(View v, Chat chat, final int position) {
+        final ImageView chatReadReceipt = (ImageView) v.findViewById(R.id.chat_read_receipt);
+        final TextView chatLastMessage = (TextView) v.findViewById(R.id.chat_last_message);
+        final TextView chatTimestamp = (TextView) v.findViewById(R.id.chat_timestamp);
+        final String chatKey = mChatsAdapter.getRef(position).getKey();
+
+        // Remove old listener if it exists
+        if (mLastMessageRefMap.containsKey(chatKey) && mLastMessageListenerMap.containsKey(chatKey)) {
+            mLastMessageRefMap.get(chatKey).removeEventListener(mLastMessageListenerMap.get(chatKey));
+        }
+
+        // Add new reference and listener to the map
+        DatabaseReference lastMessageRef = mMessagesRef.child(chatKey).child(chat.getLastMessage());
+        mLastMessageRefMap.put(chatKey, lastMessageRef);
+        mLastMessageListenerMap.put(chatKey, lastMessageRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Message message = dataSnapshot.getValue(Message.class);
+                chatLastMessage.setText(message.getText());
+                chatTimestamp.setText(formatTimestamp(message.getTimestampLong(),
+                        getResources().getString(R.string.chat_timestamp_same_day),
+                        getResources().getString(R.string.chat_timestamp_same_week),
+                        getResources().getString(R.string.chat_timestamp_default)));
+
+                if (mUserKey.equals(message.getSenderKey())) {
+                    if (message.getReadReceipts() != null) {
+                        chatReadReceipt.setImageResource(R.drawable.ic_message_seen);
+                    } else if (message.getDeliveryReceipts() != null) {
+                        chatReadReceipt.setImageResource(R.drawable.ic_message_delivered);
+                    } else {
+                        chatReadReceipt.setImageResource(R.drawable.ic_message_pending);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if (databaseError != null) {
+                    Log.e(TAG, databaseError.getMessage());
+                }
+            }
+        }));
     }
 
     @Override
