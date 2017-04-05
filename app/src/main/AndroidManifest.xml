@@ -48,7 +48,8 @@
             android:name=".ui.AddContactActivity"
             android:label="@string/title_activity_add_contact"
             android:parentActivityName=".ui.ContactsActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.videtur.ignis.ui.ContactsActivity" />

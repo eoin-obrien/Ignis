@@ -82,11 +82,11 @@
                 android:id="@+id/chat_last_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@id/chat_unread_count"
                 android:layout_toStartOf="@id/chat_unread_count"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:ellipsize="end"
                 android:maxLines="1" />
 
