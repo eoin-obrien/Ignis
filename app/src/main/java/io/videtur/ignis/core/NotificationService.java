@@ -141,7 +141,7 @@ public class NotificationService extends Service {
                     .setContentTitle(getResources().getString(R.string.app_name))
                     .setContentText(getNotificationText(chatCount, totalMessageCount))
                     .setContentInfo(String.valueOf(totalMessageCount))
-                    .setSmallIcon(R.drawable.ic_message)
+                    .setSmallIcon(R.drawable.ic_stat_message)
                     .setLights(LED_COLOR, 1000, 1000);
             if (updates.size() > 0) {
                 mNotifyBuilder.setDefaults(NotificationCompat.DEFAULT_SOUND);
