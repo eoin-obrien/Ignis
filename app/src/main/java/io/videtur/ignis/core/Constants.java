@@ -20,6 +20,7 @@ public final class Constants {
     public static final String LAST_ONLINE_CHILD = "lastOnline";
     public static final String CHATS_CHILD = "chats";
     public static final String LAST_MESSAGE_CHILD = "lastMessage";
+    public static final String UNDELIVERED_CHILD = "undelivered";
     public static final String UNREAD_CHILD = "unread";
     public static final String READ_RECEIPTS_CHILD = "readReceipts";
     public static final String DELIVERY_RECEIPTS_CHILD = "deliveryReceipts";
