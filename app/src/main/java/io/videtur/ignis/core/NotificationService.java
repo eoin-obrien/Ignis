@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.IBinder;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -33,6 +34,7 @@ import static io.videtur.ignis.core.Constants.LED_COLOR;
 import static io.videtur.ignis.core.Constants.MESSAGES_REF;
 import static io.videtur.ignis.core.Constants.NOTIFICATION_ID;
 import static io.videtur.ignis.core.Constants.RESTART_BROADCAST;
+import static io.videtur.ignis.core.Constants.UNDELIVERED_CHILD;
 import static io.videtur.ignis.core.Constants.UNREAD_CHILD;
 import static io.videtur.ignis.core.Constants.USERS_REF;
 import static io.videtur.ignis.core.Util.getKeyFromEmail;
@@ -45,6 +47,7 @@ public class NotificationService extends Service {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mDatabase;
     private DatabaseReference mUnreadMessagesRef;
+    private DatabaseReference mUndeliveredMessagesRef;
 
     private ValueEventListener mUnreadMessagesListener;
 
@@ -78,12 +81,25 @@ public class NotificationService extends Service {
 
                     mUserKey = getKeyFromEmail(firebaseAuth.getCurrentUser().getEmail());
                     mDatabase = FirebaseDatabase.getInstance();
-                    mUnreadMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child("unread");
+                    mUnreadMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child(UNREAD_CHILD);
+                    mUndeliveredMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child(UNDELIVERED_CHILD);
 
                     mUnreadMessagesListener = mUnreadMessagesRef.addValueEventListener(new ValueEventListener() {
                         @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            notifyMessages(dataSnapshot);
+                        public void onDataChange(final DataSnapshot unreadDataSnapshot) {
+                            mUndeliveredMessagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot undeliveredDataSnapshot) {
+                                    notifyMessages(unreadDataSnapshot, undeliveredDataSnapshot);
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    if (databaseError != null) {
+                                        Log.e(TAG, databaseError.getMessage());
+                                    }
+                                }
+                            });
                         }
 
                         @Override
@@ -111,7 +127,7 @@ public class NotificationService extends Service {
         sendBroadcast(broadcastIntent);
     }
 
-    private void notifyMessages(DataSnapshot unreadSnapshot) {
+    private void notifyMessages(DataSnapshot unreadSnapshot, DataSnapshot undeliveredDataSnapshot) {
         long chatCount = unreadSnapshot.getChildrenCount();
         long totalMessageCount = 0;
         Map<String, Object> updates = new HashMap<>();
@@ -119,10 +135,12 @@ public class NotificationService extends Service {
         for (DataSnapshot chatSnapshot : unreadSnapshot.getChildren()) {
             totalMessageCount += chatSnapshot.getChildrenCount();
             for (DataSnapshot messageSnapshot : chatSnapshot.getChildren()) {
-                Boolean pendingDelivery = messageSnapshot.getValue(Boolean.class);
+                Boolean pendingDelivery = undeliveredDataSnapshot
+                        .child(chatSnapshot.getKey())
+                        .hasChild(messageSnapshot.getKey());
                 if (pendingDelivery) {
-                    updates.put("/" + USERS_REF + "/" + mUserKey + "/" + UNREAD_CHILD + "/" + chatSnapshot.getKey()
-                            + "/" + messageSnapshot.getKey(), Boolean.FALSE);
+                    updates.put("/" + USERS_REF + "/" + mUserKey + "/" + UNDELIVERED_CHILD + "/" + chatSnapshot.getKey()
+                            + "/" + messageSnapshot.getKey(), null);
                     updates.put("/" + MESSAGES_REF + "/" + chatSnapshot.getKey() + "/" + messageSnapshot.getKey()
                             + "/" + DELIVERY_RECEIPTS_CHILD + "/" + mUserKey, ServerValue.TIMESTAMP);
                 }
@@ -141,7 +159,7 @@ public class NotificationService extends Service {
                     .setContentTitle(getResources().getString(R.string.app_name))
                     .setContentText(getNotificationText(chatCount, totalMessageCount))
                     .setContentInfo(String.valueOf(totalMessageCount))
-                    .setSmallIcon(R.drawable.ic_message)
+                    .setSmallIcon(R.drawable.ic_stat_message)
                     .setLights(LED_COLOR, 1000, 1000);
             if (updates.size() > 0) {
                 mNotifyBuilder.setDefaults(NotificationCompat.DEFAULT_SOUND);

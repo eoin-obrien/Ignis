@@ -1,7 +1,6 @@
 package io.videtur.ignis.ui;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
@@ -52,7 +51,6 @@ public class ContactsActivity extends IgnisAuthActivity {
 
     private EditText mSearchEditText;
     private ListView mContactsList;
-    private Resources mResources;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +67,6 @@ public class ContactsActivity extends IgnisAuthActivity {
         mContactsRef = getDatabase().getReference(CONTACTS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
 
-        mResources = getResources();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -190,9 +187,9 @@ public class ContactsActivity extends IgnisAuthActivity {
                     contactStatus.setText(getResources().getString(R.string.user_online));
                 } else {
                     contactStatus.setText(formatTimestamp(model.getLastOnline(),
-                            mResources.getString(R.string.last_online_timestamp_same_day),
-                            mResources.getString(R.string.last_online_timestamp_same_week),
-                            mResources.getString(R.string.last_online_timestamp_default)));
+                            getResources().getString(R.string.last_online_timestamp_same_day),
+                            getResources().getString(R.string.last_online_timestamp_same_week),
+                            getResources().getString(R.string.last_online_timestamp_default)));
                 }
             }
 

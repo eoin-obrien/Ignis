@@ -203,10 +203,14 @@ public class ChatActivity extends IgnisAuthActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User contact = dataSnapshot.getValue(User.class);
                         mToolbarPrimaryText.setText(contact.getName());
-                        mToolbarSecondaryText.setText(formatTimestamp(contact.getLastOnline(),
-                                getResources().getString(R.string.last_online_timestamp_same_day),
-                                getResources().getString(R.string.last_online_timestamp_same_week),
-                                getResources().getString(R.string.last_online_timestamp_default)));
+                        if (contact.getConnections() != null && contact.getConnections().size() > 0) {
+                            mToolbarSecondaryText.setText(getResources().getString(R.string.user_online));
+                        } else {
+                            mToolbarSecondaryText.setText(formatTimestamp(contact.getLastOnline(),
+                                    getResources().getString(R.string.last_online_timestamp_same_day),
+                                    getResources().getString(R.string.last_online_timestamp_same_week),
+                                    getResources().getString(R.string.last_online_timestamp_default)));
+                        }
                         Glide.with(ChatActivity.this)
                                 .load(contact.getPhotoUrl())
                                 .into(mToolbarImage);
