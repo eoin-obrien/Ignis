@@ -76,7 +76,8 @@
                 android:layout_centerVertical="true"
                 android:background="@drawable/message_count_background"
                 android:gravity="center"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/chat_last_message"
