@@ -52,6 +52,7 @@ public class ChatActivity extends IgnisAuthActivity {
 
     private DatabaseReference mChatRef;
     private DatabaseReference mMessagesRef;
+    private ValueEventListener mContactListener;
 
     private RecyclerView mChatRecycler;
     private FirebaseRecyclerAdapter<Message, MessageHolder> mChatAdapter;
@@ -152,33 +153,33 @@ public class ChatActivity extends IgnisAuthActivity {
         }
     }
 
+
     @Override
     public void onUserDataChange(String key, User user) {
         super.onUserDataChange(key, user);
-
         mUserKey = key;
         mUserName = user.getName();
         mUserProfilePhotoUrl = user.getPhotoUrl();
 
         // messages can be sent once the user is authenticated
-        if (mChat == null) {
-            mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    mChat = dataSnapshot.getValue(Chat.class);
-                    setUpChatRecycler();
+        mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mChat = dataSnapshot.getValue(Chat.class);
+                if (mChatRecycler.getAdapter() == null) {
                     setUpChatToolbar();
-                    mMessageEditText.setEnabled(true);
+                    setUpChatRecycler();
                 }
+                mMessageEditText.setEnabled(true);
+            }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    if (databaseError != null) {
-                        Log.e(TAG, databaseError.getMessage());
-                    }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if (databaseError != null) {
+                    Log.e(TAG, databaseError.getMessage());
                 }
-            });
-        }
+            }
+        });
     }
 
     private void setUpChatToolbar() {
@@ -197,12 +198,30 @@ public class ChatActivity extends IgnisAuthActivity {
                 startActivity(intent);
             }
         });
+        // TODO only set if no listener already
         getDatabase().getReference(USERS_REF).child(contactKey)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User contact = dataSnapshot.getValue(User.class);
                         mToolbarPrimaryText.setText(contact.getName());
+                        Glide.with(ChatActivity.this)
+                                .load(contact.getPhotoUrl())
+                                .into(mToolbarImage);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        if (databaseError != null) {
+                            Log.e(TAG, databaseError.getMessage());
+                        }
+                    }
+                });
+        getDatabase().getReference(USERS_REF).child(contactKey)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User contact = dataSnapshot.getValue(User.class);
                         if (contact.getConnections() != null && contact.getConnections().size() > 0) {
                             mToolbarSecondaryText.setText(getResources().getString(R.string.user_online));
                         } else {
@@ -211,9 +230,6 @@ public class ChatActivity extends IgnisAuthActivity {
                                     getResources().getString(R.string.last_online_timestamp_same_week),
                                     getResources().getString(R.string.last_online_timestamp_default)));
                         }
-                        Glide.with(ChatActivity.this)
-                                .load(contact.getPhotoUrl())
-                                .into(mToolbarImage);
                     }
 
                     @Override
