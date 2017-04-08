@@ -1,5 +1,8 @@
 package io.videtur.ignis.core;
 
+/**
+ * Contains constant values used throughout the app.
+ */
 public final class Constants {
 
     public static final String RESTART_BROADCAST = "io.videtur.ignis.service.RestartNotificationService";
@@ -33,6 +36,7 @@ public final class Constants {
     public static final int REQUEST_INVITE = 100;
     public static final int REQUEST_SIGN_IN = 101;
 
+    // Separator for user keys in compound chat keys
     public static final String CHAT_KEY_DELIMITER = ",";
 
     private Constants() {

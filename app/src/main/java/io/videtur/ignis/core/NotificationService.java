@@ -38,6 +38,9 @@ import static io.videtur.ignis.core.Constants.UNREAD_CHILD;
 import static io.videtur.ignis.core.Constants.USERS_REF;
 import static io.videtur.ignis.core.Util.getKeyFromEmail;
 
+/**
+ * Service for notifying the user when new messages are received.
+ */
 public class NotificationService extends Service {
 
     private static final String TAG = "NotificationService";
@@ -83,12 +86,15 @@ public class NotificationService extends Service {
                     mUnreadMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child(UNREAD_CHILD);
                     mUndeliveredMessagesRef = mDatabase.getReference(USERS_REF).child(mUserKey).child(UNDELIVERED_CHILD);
 
+                    // Listen for unread messages
                     mUnreadMessagesListener = mUnreadMessagesRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(final DataSnapshot unreadDataSnapshot) {
+                            // Get a snapshot of undelivered messages for reference
                             mUndeliveredMessagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot undeliveredDataSnapshot) {
+                                    // Update the notification
                                     notifyMessages(unreadDataSnapshot, undeliveredDataSnapshot);
                                 }
 
@@ -121,7 +127,7 @@ public class NotificationService extends Service {
         super.onDestroy();
         Log.i(TAG, "onDestroy()");
         mAuth.removeAuthStateListener(mAuthStateListener);
-        // restart service if destroyed
+        // Restart service if destroyed
         Intent broadcastIntent = new Intent(RESTART_BROADCAST);
         sendBroadcast(broadcastIntent);
     }
@@ -131,22 +137,24 @@ public class NotificationService extends Service {
         long totalMessageCount = 0;
         Map<String, Object> updates = new HashMap<>();
 
+        // Get the total number of unread messages
         for (DataSnapshot chatSnapshot : unreadSnapshot.getChildren()) {
             totalMessageCount += chatSnapshot.getChildrenCount();
-            for (DataSnapshot messageSnapshot : chatSnapshot.getChildren()) {
-                Boolean pendingDelivery = undeliveredDataSnapshot
-                        .child(chatSnapshot.getKey())
-                        .hasChild(messageSnapshot.getKey());
-                if (pendingDelivery) {
-                    updates.put("/" + USERS_REF + "/" + mUserKey + "/" + UNDELIVERED_CHILD + "/" + chatSnapshot.getKey()
-                            + "/" + messageSnapshot.getKey(), null);
-                    updates.put("/" + MESSAGES_REF + "/" + chatSnapshot.getKey() + "/" + messageSnapshot.getKey()
-                            + "/" + DELIVERY_RECEIPTS_CHILD + "/" + mUserKey, ServerValue.TIMESTAMP);
-                }
+        }
+
+        // Mark all undelivered messages as delivered
+        for (DataSnapshot chatSnapshot : undeliveredDataSnapshot.getChildren()) {
+            totalMessageCount += chatSnapshot.getChildrenCount();
+            for (DataSnapshot messageSnapshot : undeliveredDataSnapshot.getChildren()) {
+                updates.put("/" + USERS_REF + "/" + mUserKey + "/" + UNDELIVERED_CHILD + "/" + chatSnapshot.getKey()
+                        + "/" + messageSnapshot.getKey(), null);
+                updates.put("/" + MESSAGES_REF + "/" + chatSnapshot.getKey() + "/" + messageSnapshot.getKey()
+                        + "/" + DELIVERY_RECEIPTS_CHILD + "/" + mUserKey, ServerValue.TIMESTAMP);
             }
         }
 
         if (totalMessageCount >= 1) {
+            // Build and send the notification
             PendingIntent pendingIntent;
             if (chatCount == 1) {
                 pendingIntent = getIntentForSingleChat(unreadSnapshot.getChildren().iterator().next().getKey());
@@ -160,13 +168,16 @@ public class NotificationService extends Service {
                     .setContentInfo(String.valueOf(totalMessageCount))
                     .setSmallIcon(R.drawable.ic_stat_message)
                     .setLights(LED_COLOR, 1000, 1000);
+            // If there were some undelivered messages, then play a sound and vibrate
             if (updates.size() > 0) {
                 mNotifyBuilder.setDefaults(NotificationCompat.DEFAULT_SOUND);
                 mNotifyBuilder.setDefaults(NotificationCompat.DEFAULT_VIBRATE);
             }
             mNotificationManager.notify(NOTIFICATION_ID, mNotifyBuilder.build());
+            // Push delivery receipts to Firebase
             mDatabase.getReference().updateChildren(updates);
         } else {
+            // No unread messages, so remove the notification
             mNotificationManager.cancel(NOTIFICATION_ID);
         }
     }
