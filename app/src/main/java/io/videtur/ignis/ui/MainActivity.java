@@ -46,6 +46,10 @@ import static io.videtur.ignis.core.Constants.UNREAD_CHILD;
 import static io.videtur.ignis.core.Constants.USERS_REF;
 import static io.videtur.ignis.core.Util.formatTimestamp;
 
+/**
+ * Displays a list of chats with details. Provides navigation through the app. Monitors internet
+ * connection and alerts the user to loss of connection.
+ */
 public class MainActivity extends IgnisAuthActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -81,12 +85,13 @@ public class MainActivity extends IgnisAuthActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // start NewMessageActivity
+                // Start NewMessageActivity
                 Intent intent = new Intent(MainActivity.this, NewMessageActivity.class);
                 startActivity(intent);
             }
         });
 
+        // Set up navigation drawer layout
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -134,6 +139,8 @@ public class MainActivity extends IgnisAuthActivity
         mMessagesRef = getDatabase().getReference(MESSAGES_REF);
         mChatsRef = getDatabase().getReference(CHATS_REF);
         mUsersRef = getDatabase().getReference(USERS_REF);
+
+        // Set up chat list adapter
         if (mChatList.getAdapter() == null) {
             mChatsAdapter = new FirebaseIndexListAdapter<Chat>(this, Chat.class, R.layout.item_chat,
                     mUserChatsRef.orderByValue(), mChatsRef) {
@@ -170,7 +177,7 @@ public class MainActivity extends IgnisAuthActivity
                         }
                     });
 
-                    // clicking on a list item should start the corresponding chat
+                    // Clicking on a list item should start the corresponding chat
                     v.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -281,6 +288,7 @@ public class MainActivity extends IgnisAuthActivity
 
     @Override
     public void onBackPressed() {
+        // Pressing back should close the navigation drawer if it is open
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -291,7 +299,6 @@ public class MainActivity extends IgnisAuthActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_new_message) {
@@ -310,6 +317,7 @@ public class MainActivity extends IgnisAuthActivity
     }
 
     private void startInvitesActivity() {
+        // Build and start the UI flow for Firebase invites
         Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
                 .setMessage(getString(R.string.invitation_message))
                 .setCallToActionText(getString(R.string.invitation_cta))
@@ -320,10 +328,10 @@ public class MainActivity extends IgnisAuthActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
 
+        // Handle responses from Firebase invites UI flow
         if (requestCode == REQUEST_INVITE && resultCode == RESULT_OK) {
-            // Get the invitation IDs of all sent messages
+            // Log the invitation IDs of all sent messages
             String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
             for (String id : ids) {
                 Log.d(TAG, "onActivityResult: sent invitation " + id);
@@ -350,6 +358,7 @@ public class MainActivity extends IgnisAuthActivity
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            // Get state of internet connection and set the activity title accordingly
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
             boolean connected = activeNetworkInfo != null && activeNetworkInfo.isConnected();
