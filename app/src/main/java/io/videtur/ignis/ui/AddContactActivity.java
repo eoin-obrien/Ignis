@@ -26,6 +26,9 @@ import io.videtur.ignis.model.User;
 import static io.videtur.ignis.core.Constants.CONTACTS_REF;
 import static io.videtur.ignis.core.Constants.USERS_REF;
 
+/**
+ * Allows the user to add a contact by entering their email address.
+ */
 public class AddContactActivity extends IgnisAuthActivity {
 
     private static final String TAG = "AddContactActivity";

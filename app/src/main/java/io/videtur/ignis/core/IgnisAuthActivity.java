@@ -32,6 +32,9 @@ import static io.videtur.ignis.core.Constants.CONNECTIONS_CHILD;
 import static io.videtur.ignis.core.Constants.LAST_ONLINE_CHILD;
 import static io.videtur.ignis.core.Constants.USERS_REF;
 
+/**
+ * Base class for activities that require access to Firebase user authentication.
+ */
 public abstract class IgnisAuthActivity extends AppCompatActivity
         implements AuthStateListener {
 
@@ -64,6 +67,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
         mUsersRef = mDatabase.getReference(USERS_REF);
         mConnectedRef = mDatabase.getReference(CONNECTED_REF);
 
+        // If the NotificationService is not running, then start it
         mSensorService = new NotificationService();
         mServiceIntent = new Intent(getApplicationContext(), mSensorService.getClass());
         if (!isServiceRunning(mSensorService.getClass())) {
@@ -239,6 +243,7 @@ public abstract class IgnisAuthActivity extends AppCompatActivity
     }
 
     private boolean isServiceRunning(Class<?> serviceClass) {
+        // Check if a service of the given type is running
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {

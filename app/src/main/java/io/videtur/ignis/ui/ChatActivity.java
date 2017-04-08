@@ -40,6 +40,9 @@ import static io.videtur.ignis.core.FirebaseUtil.markMessageAsRead;
 import static io.videtur.ignis.core.FirebaseUtil.sendMessage;
 import static io.videtur.ignis.core.Util.formatTimestamp;
 
+/**
+ * Displays chat messages and read receipts, and allows the user to send messages.
+ */
 public class ChatActivity extends IgnisAuthActivity {
 
     public static final String ARG_CHAT_KEY = "arg_chat_key";
@@ -52,7 +55,6 @@ public class ChatActivity extends IgnisAuthActivity {
 
     private DatabaseReference mChatRef;
     private DatabaseReference mMessagesRef;
-    private ValueEventListener mContactListener;
 
     private RecyclerView mChatRecycler;
     private FirebaseRecyclerAdapter<Message, MessageHolder> mChatAdapter;
@@ -78,7 +80,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mChatRef = getDatabase().getReference(CHATS_REF).child(mChatKey);
         mMessagesRef = getDatabase().getReference(MESSAGES_REF).child(mChatKey);
 
-        // get View references
+        // Get View references
         mToolbarLayout = findViewById(R.id.toolbar_layout);
         mToolbarImage = (ImageView) findViewById(R.id.toolbar_image);
         mToolbarPrimaryText = (TextView) findViewById(R.id.toolbar_primary_text);
@@ -88,7 +90,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mSendButton = (Button) findViewById(R.id.send_button);
         mFab = (FloatingActionButton) findViewById(R.id.fab);
 
-        // set up listener on FAB to return to the bottom of the chat
+        // Set up listener on FAB to return to the bottom of the chat
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,10 +98,10 @@ public class ChatActivity extends IgnisAuthActivity {
             }
         });
 
-        // hide FAB initially
+        // Hide FAB initially
         mFab.setVisibility(View.GONE);
 
-        // show FAB if scrolling down and not at last message
+        // Show FAB if scrolling down and not at last message
         mChatRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -116,7 +118,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mMessageEditText.setEnabled(false);
         mSendButton.setEnabled(false);
 
-        // set up listener on mSendButton to send message
+        // Set up listener on mSendButton to send message
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,7 +129,7 @@ public class ChatActivity extends IgnisAuthActivity {
             }
         });
 
-        // set up listener on EditText to enable/disable the send Button
+        // Set up listener on EditText to enable/disable the send Button
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -161,7 +163,7 @@ public class ChatActivity extends IgnisAuthActivity {
         mUserName = user.getName();
         mUserProfilePhotoUrl = user.getPhotoUrl();
 
-        // messages can be sent once the user is authenticated
+        // Messages can be sent once the user is authenticated
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -183,7 +185,7 @@ public class ChatActivity extends IgnisAuthActivity {
     }
 
     private void setUpChatToolbar() {
-        // get user ID from Chat model and fill the toolbar with those values
+        // Get user ID from Chat model and fill the toolbar with those values
         final String contactKey;
         if (!mChat.getMembers().keySet().toArray()[0].equals(mUserKey)) {
             contactKey = (String) mChat.getMembers().keySet().toArray()[0];

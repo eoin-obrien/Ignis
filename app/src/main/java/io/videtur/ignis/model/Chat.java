@@ -2,6 +2,9 @@ package io.videtur.ignis.model;
 
 import java.util.Map;
 
+/**
+ * Data model object for chats.
+ */
 @SuppressWarnings("unused")
 public class Chat {
 
@@ -11,7 +14,7 @@ public class Chat {
     private Map<String, Object> members;
 
     public Chat() {
-        // empty constructor for Firebase
+        // Empty constructor for Firebase
     }
 
     public Chat(Map<String, Object> chatMembers) {

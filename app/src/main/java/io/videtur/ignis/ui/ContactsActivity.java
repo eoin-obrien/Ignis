@@ -38,6 +38,9 @@ import static io.videtur.ignis.core.FirebaseUtil.createChat;
 import static io.videtur.ignis.core.Util.formatTimestamp;
 import static io.videtur.ignis.core.Util.generateChatKey;
 
+/**
+ * Displays a list of the user's contacts.
+ */
 public class ContactsActivity extends IgnisAuthActivity {
 
     private static final String TAG = "ContactsActivity";
@@ -110,13 +113,13 @@ public class ContactsActivity extends IgnisAuthActivity {
         mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // generate chat if it doesn't exist
                 final String contactKey = mContactsAdapter.getRef(position).getKey();
                 final String chatKey = generateChatKey(key, contactKey);
                 mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
+                            // Generate chat if it doesn't exist
                             createChat(getDatabase(), chatKey, key, contactKey)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -131,6 +134,7 @@ public class ContactsActivity extends IgnisAuthActivity {
                                         }
                                     });
                         } else {
+                            // Launch chat directly if it does exist
                             startChatActivity(chatKey);
                         }
                     }
@@ -145,6 +149,7 @@ public class ContactsActivity extends IgnisAuthActivity {
             }
         });
 
+        // Update search results when the search term changes
         if (mSearchTextWatcher != null) {
             mSearchEditText.removeTextChangedListener(mSearchTextWatcher);
         }
