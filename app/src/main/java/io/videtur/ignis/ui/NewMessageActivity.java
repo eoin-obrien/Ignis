@@ -35,6 +35,9 @@ import static io.videtur.ignis.core.FirebaseUtil.createChat;
 import static io.videtur.ignis.core.Util.formatTimestamp;
 import static io.videtur.ignis.core.Util.generateChatKey;
 
+/**
+ * Allows the user to select a contact with whom to chat.
+ */
 public class NewMessageActivity extends IgnisAuthActivity {
 
     private static final String TAG = "NewMessageActivity";
@@ -70,31 +73,21 @@ public class NewMessageActivity extends IgnisAuthActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
     public void onUserDataChange(final String key, final User user) {
         super.onUserDataChange(key, user);
 
         mContactsKeyRef = mContactsRef.child(key);
-        setContactsAdapter();
+        setContactsAdapter("");
         mContactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // generate chat if it doesn't exist
                 final String contactKey = mContactsAdapter.getRef(position).getKey();
                 final String chatKey = generateChatKey(key, contactKey);
                 mChatsRef.child(chatKey).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
+                            // Generate chat if it doesn't exist
                             createChat(getDatabase(), chatKey, key, contactKey)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -109,6 +102,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
                                         }
                                     });
                         } else {
+                            // Launch chat directly if it does exist
                             startChatActivity(chatKey);
                         }
                     }
@@ -123,6 +117,7 @@ public class NewMessageActivity extends IgnisAuthActivity {
             }
         });
 
+        // Update search results when the search term changes
         if (mSearchTextWatcher != null) {
             mSearchEditText.removeTextChangedListener(mSearchTextWatcher);
         }
@@ -149,10 +144,6 @@ public class NewMessageActivity extends IgnisAuthActivity {
         intent.putExtra(ChatActivity.ARG_CHAT_KEY, chatKey);
         startActivity(intent);
         finish();
-    }
-
-    private void setContactsAdapter() {
-        setContactsAdapter("");
     }
 
     private void setContactsAdapter(String searchTerm) {

@@ -11,18 +11,30 @@ import java.util.concurrent.TimeUnit;
 
 import static io.videtur.ignis.core.Constants.CHAT_KEY_DELIMITER;
 
+/**
+ * Utility methods.
+ */
 public final class Util {
 
+    /**
+     * Generates a database key from an email address.
+     */
     public static String getKeyFromEmail(String email) {
         byte[] bytes = email.getBytes();
         return Base64.encodeToString(bytes, Base64.URL_SAFE | Base64.NO_WRAP);
     }
 
+    /**
+     * Decodes a database key to an email address.
+     */
     public static String getEmailFromKey(String key) {
         byte[] bytes = Base64.decode(key, Base64.URL_SAFE | Base64.NO_WRAP);
         return new String(bytes);
     }
 
+    /**
+     * Generates a chat key from two user keys.
+     */
     public static String generateChatKey(String userKey1, String userKey2) {
         String key;
         if (userKey1.compareTo(userKey2) < 0) {
@@ -33,6 +45,9 @@ public final class Util {
         return key;
     }
 
+    /**
+     * Formats a timestamp with different format strings for more recent dates.
+     */
     public static String formatTimestamp(long timestampMs, String sameDayFormat, String sameWeekFormat, String defaultFormat) {
         String formattedTime;
         Calendar now = Calendar.getInstance();
@@ -53,11 +68,6 @@ public final class Util {
             formattedTime = (String) DateFormat.format(defaultFormat, timestamp);
         }
         return formattedTime;
-    }
-
-    public static float dpToPx(Context context, float dp) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, displayMetrics);
     }
 
 }

@@ -30,6 +30,10 @@ import static io.videtur.ignis.core.Constants.CONTACTS_REF;
 import static io.videtur.ignis.core.Constants.USERS_REF;
 import static io.videtur.ignis.core.Util.formatTimestamp;
 
+/**
+ * Displays details about a particular user. Allow user to be added/removed from the list of
+ * contacts.
+ */
 public class ContactInfoActivity extends IgnisAuthActivity {
 
     public static final String ARG_CONTACT_KEY = "arg_contact_key";

@@ -21,6 +21,9 @@ import io.videtur.ignis.R;
 
 import static io.videtur.ignis.core.Constants.REQUEST_SIGN_IN;
 
+/**
+ * Provides a simple interface for Google authentication through Firebase.
+ */
 public class SignInActivity extends AppCompatActivity {
 
     private static final String TAG = "SignInActivity";
@@ -42,6 +45,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void startGoogleSignIn() {
+        // Build and start FirebaseUI authentication flow
         List<AuthUI.IdpConfig> providers = Collections.singletonList(
                 new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build());
         startActivityForResult(
@@ -56,6 +60,7 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        // Only handle results from FirebaseUI authentication
         if (requestCode == REQUEST_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == ResultCodes.OK) {
@@ -63,7 +68,7 @@ public class SignInActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MainActivity.class));
                 finish();
             } else {
-                // Authentication failed
+                // Authentication failed, show error in toast
                 if (response != null) {
                     Log.d(TAG, "errorCode:" + response.getErrorCode());
                     if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {

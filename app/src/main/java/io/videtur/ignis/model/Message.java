@@ -6,6 +6,9 @@ import com.google.firebase.database.ServerValue;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Data model object for chat messages.
+ */
 @SuppressWarnings("unused")
 public class Message {
 
@@ -18,6 +21,7 @@ public class Message {
     private Map<String, Object> timestamp;
 
     public Message() {
+        // Empty constructor for Firebase
     }
 
     public Message(String text, String senderKey, String senderName, String senderPhotoUrl) {

@@ -4,6 +4,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Map;
 
+/**
+ * Data model object for users.
+ */
 @SuppressWarnings("unused")
 public class User {
 
@@ -13,9 +16,11 @@ public class User {
     private long lastOnline;
     private Map<String, Object> connections;
     private Map<String, Object> chats;
+    private Map<String, Object> undelivered;
     private Map<String, Object> unread;
 
     public User() {
+        // Empty constructor for Firebase
     }
 
     public User(FirebaseUser firebaseUser) {
@@ -80,5 +85,13 @@ public class User {
 
     public void setUnread(Map<String, Object> unread) {
         this.unread = unread;
+    }
+
+    public Map<String, Object> getUndelivered() {
+        return undelivered;
+    }
+
+    public void setUndelivered(Map<String, Object> undelivered) {
+        this.undelivered = undelivered;
     }
 }
