@@ -265,7 +265,7 @@ public class ChatActivity extends IgnisAuthActivity {
             @Override
             public int getItemViewType(int position) {
                 Message message = getItem(position);
-                if (message.getSenderKey().equals(mUserKey)) {
+                if (mUserKey.equals(message.getSenderKey())) {
                     return MESSAGE_FROM_USER;
                 } else {
                     return MESSAGE_TO_USER;
@@ -275,11 +275,16 @@ public class ChatActivity extends IgnisAuthActivity {
             @Override
             protected void populateViewHolder(MessageHolder viewHolder, Message model, int position) {
                 String messageKey = this.getRef(position).getKey();
-                viewHolder.mMessageText.setText(model.getText());
-                viewHolder.mTimestampText.setText(formatTimestamp(model.getTimestampLong(),
-                        getResources().getString(R.string.message_timestamp_same_day),
-                        getResources().getString(R.string.message_timestamp_same_week),
-                        getResources().getString(R.string.message_timestamp_default)));
+                if (model.getText() != null) {
+                    viewHolder.mMessageText.setText(model.getText());
+                }
+
+                if (model.getTimestamp() != null) {
+                    viewHolder.mTimestampText.setText(formatTimestamp(model.getTimestampLong(),
+                            getResources().getString(R.string.message_timestamp_same_day),
+                            getResources().getString(R.string.message_timestamp_same_week),
+                            getResources().getString(R.string.message_timestamp_default)));
+                }
 
                 if (viewHolder.mReadReceipt != null) {
                     if (model.getReadReceipts() != null) {
