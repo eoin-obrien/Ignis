@@ -144,8 +144,7 @@ public class NotificationService extends Service {
 
         // Mark all undelivered messages as delivered
         for (DataSnapshot chatSnapshot : undeliveredDataSnapshot.getChildren()) {
-            totalMessageCount += chatSnapshot.getChildrenCount();
-            for (DataSnapshot messageSnapshot : undeliveredDataSnapshot.getChildren()) {
+            for (DataSnapshot messageSnapshot : chatSnapshot.getChildren()) {
                 updates.put("/" + USERS_REF + "/" + mUserKey + "/" + UNDELIVERED_CHILD + "/" + chatSnapshot.getKey()
                         + "/" + messageSnapshot.getKey(), null);
                 updates.put("/" + MESSAGES_REF + "/" + chatSnapshot.getKey() + "/" + messageSnapshot.getKey()
