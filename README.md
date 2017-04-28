@@ -15,15 +15,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
-
-In the [Firebase console](https://console.firebase.google.com/), add a project called "Ignis". Select your country or region and click "Create Project".
-
-Enable Google as a sign-in provider.
-
-Open the project in Android Studio, and use Firebase Assistant to connect the app to Firebase.
-
-You should now be able to compile and run the app successfully.
+- In the [Firebase console](https://console.firebase.google.com/), add a project called "Ignis". Select your country or region and click "Create Project".
+- Enable Google as a sign-in provider.
+- Open the project in Android Studio, and use Firebase Assistant to connect the app to Firebase.
+- You should now be able to compile and run the app successfully.
 
 ## Built With
 
